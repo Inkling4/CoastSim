@@ -1,0 +1,38 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "CPP_Buoyancy.generated.h"
+
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class COASTSIM_API UCPP_Buoyancy : public UActorComponent
+{
+	GENERATED_BODY()
+
+public:	
+	// Sets default values for this component's properties
+	UCPP_Buoyancy();
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+protected:
+	// ...
+	
+	UPROPERTY(EditAnywhere, Category="References")
+	USceneComponent* VisualComponent;
+
+	AActor* OwnerActor;
+	
+	float VisualComponentOffset();
+	
+	float SurfaceAveragePos();
+};
