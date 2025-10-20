@@ -6,6 +6,13 @@
 #include "Components/ActorComponent.h"
 #include "AStarComponent.generated.h"
 
+/*
+ * This component will be used to store variables and functions for finding a path using A*.
+ * TODO: Add a TGraph to store points for movement
+ *
+ */
+
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COASTSIM_API UAStarComponent : public UActorComponent
@@ -15,7 +22,7 @@ class COASTSIM_API UAStarComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UAStarComponent();
-
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
