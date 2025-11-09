@@ -2,9 +2,7 @@
 
 
 #include "AStarNode.h"
-
-#include "DynamicMesh/DynamicMesh3.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetMathLibrary.h" // For square root function
 
 AAStarNode::AAStarNode()
 {
@@ -25,10 +23,28 @@ float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 
 	// Calculates the distance using pythagoras.
 	float heuristic = UKismetMathLibrary::Sqrt(distanceVector.X * distanceVector.X + distanceVector.Y * distanceVector.Y);
-
 	
-	UE_LOG(LogTemp, Display, TEXT("Node %s has calculated heuristic as %f."), *FString(GetName()), heuristic);
+	// UE_LOG(LogTemp, Display, TEXT("Node %s has calculated heuristic as %f."), *FString(GetName()), heuristic);
 	
 	return heuristic;
 
+}
+
+ENodeState AAStarNode::GetNodeState() const
+{
+	return NodeState;
+}
+
+bool AAStarNode::GetIsWalkable()
+{
+	return bIsWalkable;
+}
+
+void AAStarNode::DisableNode()
+{
+	bIsWalkable = false;
+}
+void AAStarNode::EnableNode()
+{
+	bIsWalkable = true;
 }

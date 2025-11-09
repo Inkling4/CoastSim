@@ -25,18 +25,34 @@ class COASTSIM_API AAStarNode : public AActor
 {
 	GENERATED_BODY()
 protected:
-	
 
+	// State of this node
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
+	ENodeState NodeState = ENodeState::Default;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
+	bool bIsWalkable = true;
 	
 public:
 	AAStarNode();
+
+	// Returns the current state of this node.
+	ENodeState GetNodeState() const;
+
+	bool GetIsWalkable();
+
+	// Disables node, makes it unwalkable.
+	UFUNCTION(CallInEditor, BlueprintCallable, Category = "AStar")
+	void DisableNode();
+	// Makes the node walkable.
+	UFUNCTION(CallInEditor, BlueprintCallable, Category = "AStar")
+	void EnableNode();
 	
 	// Returns the Heuristic of this node in cm for the given location to travel.
-	// Disregards the Z axis.
+	// Disregards the Z axis, only use X and Y.
 	// InGoalLocation: Coordinates you wish to go to.
 	UFUNCTION(BlueprintCallable, category = "AStar")
 	float GetHeuristicCost(FVector2D InGoalLocation);
-	
+
 	
 	
 };

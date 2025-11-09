@@ -8,7 +8,7 @@
 
 /*
  * This component will be used to store variables and functions for finding a path using A*.
- * TODO: Add a TGraph to store points for movement
+ * 
  *
  */
 
