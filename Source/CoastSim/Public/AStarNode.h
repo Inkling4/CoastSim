@@ -33,12 +33,16 @@ class COASTSIM_API AAStarNode : public AActor
 	GENERATED_BODY()
 protected:
 
+	FTimerHandle NeighborDetectionTimerHandle;
+
 	// For neighbor node detection
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AStar")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AStar")
 	TObjectPtr<USphereComponent> SphereComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AStar")
 	TArray<AAStarNode*> Neighbors;
+
+	void FindNeighbors();
 
 	virtual void BeginPlay() override;
 	

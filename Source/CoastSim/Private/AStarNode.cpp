@@ -17,18 +17,30 @@ AAStarNode::AAStarNode()
 void AAStarNode::BeginPlay()
 {
 	Super::BeginPlay();
-	TArray<AAStarNode*> neighbors;
-    
-	TArray<AActor*> OverlappingActors;
-	SphereComponent->GetOverlappingActors(OverlappingActors, AAStarNode::StaticClass());
-    	
-	for (AActor* Node : OverlappingActors)
-	{
-		AAStarNode* neighbor = Cast<AAStarNode>(Node);
-		neighbors.Add(neighbor);
-	}
-	Neighbors = neighbors;
+	// Calls FindNeighbors after half a second to make the detection actually find everyone properly.
+	GetWorld()->GetTimerManager().SetTimer(NeighborDetectionTimerHandle, this, &AAStarNode::FindNeighbors, 0.5f, false);
+	
 }
+
+void AAStarNode::FindNeighbors()
+{
+	TArray<AAStarNode*> neighbors;
+        
+    	TArray<AActor*> OverlappingActors;
+    	SphereComponent->GetOverlappingActors(OverlappingActors, AAStarNode::StaticClass());
+        	
+    	for (AActor* Node : OverlappingActors)
+    	{
+    		AAStarNode* neighbor = Cast<AAStarNode>(Node);
+    		if (neighbor != this)
+    		{
+    			neighbors.Add(neighbor);
+    		}
+    		
+    	}
+    	Neighbors = neighbors;
+}
+
 
 
 
