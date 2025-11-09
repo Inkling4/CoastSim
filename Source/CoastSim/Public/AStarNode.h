@@ -36,12 +36,18 @@ protected:
 	// For neighbor node detection
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AStar")
 	TObjectPtr<USphereComponent> SphereComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AStar")
+	TArray<AAStarNode*> Neighbors;
+
+	virtual void BeginPlay() override;
 	
 	// State of this node
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	ENodeState NodeState = ENodeState::Default;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	bool bIsWalkable = true;
+	
 	
 	
 public:
@@ -56,7 +62,10 @@ public:
 	ENodeState GetNodeState() const;
 
 	bool GetIsWalkable();
-
+	
+	// Returns the neighbor nodes of this node in eight directions.
+	TArray<AAStarNode*> GetNeighbors();
+	
 	// Disables node, makes it unwalkable.
 	UFUNCTION(CallInEditor, BlueprintCallable, Category = "AStar")
 	void DisableNode();
@@ -70,6 +79,6 @@ public:
 	UFUNCTION(BlueprintCallable, category = "AStar")
 	float GetHeuristicCost(FVector2D InGoalLocation);
 
-	TArray<TObjectPtr<AAStarNode>> GetNeighbors();
+	
 
 };

@@ -14,6 +14,21 @@ AAStarNode::AAStarNode()
 	SphereComponent->SetupAttachment(RootComponent);
 }
 
+void AAStarNode::BeginPlay()
+{
+	Super::BeginPlay();
+	TArray<AAStarNode*> neighbors;
+    
+	TArray<AActor*> OverlappingActors;
+	SphereComponent->GetOverlappingActors(OverlappingActors, AAStarNode::StaticClass());
+    	
+	for (AActor* Node : OverlappingActors)
+	{
+		AAStarNode* neighbor = Cast<AAStarNode>(Node);
+		neighbors.Add(neighbor);
+	}
+	
+}
 
 
 
@@ -36,16 +51,9 @@ float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 
 }
 
-TArray<TObjectPtr<AAStarNode>> AAStarNode::GetNeighbors()
+TArray<AAStarNode*> AAStarNode::GetNeighbors()
 {
-	TArray<TObjectPtr<AAStarNode>> neighbors;
-
-	
-	// CURRENTLY NULL!
-	// Don't call this yet!
-	return neighbors; 
-	
-	
+	return Neighbors;
 }
 
 
