@@ -3,8 +3,6 @@
 
 #include "CPP_Buoyancy.h"
 
-#include <gsl/pointers>
-
 // Sets default values for this component's properties
 UCPP_Buoyancy::UCPP_Buoyancy()
 {
@@ -26,8 +24,8 @@ void UCPP_Buoyancy::BeginPlay()
 	OwnerActor = GetOwner();
 	USceneComponent* rootComponent = OwnerActor->GetRootComponent();
 	
-	VisualComponent = Cast<USceneComponent>(OwnerActor->GetDefaultSubobjectByName(TEXT("Visual")));
-	if (VisualComponent == nullptr)
+	VisualComponent = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName(TEXT("Visual")));
+	if (!VisualComponent)
 		UE_LOG(LogTemp, Error, TEXT("No Visual Component on buoyancy object"))
 }
 
@@ -39,9 +37,10 @@ void UCPP_Buoyancy::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 	// ...
 
-	
+	if (VisualComponent)
+	{
 		SurfaceAveragePos();
-	
+	}
 }
 
 float UCPP_Buoyancy::SurfaceAveragePos()
@@ -60,20 +59,15 @@ float UCPP_Buoyancy::SurfaceAveragePos()
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(owner); // Ignore own actor
 
-	bool bHit = GetWorld()->LineTraceSingleByObjectType(HitResult, RayOrigin, RayEnd, ECC_GameTraceChannel1, CollisionParams);
+	bool bHit = GetWorld()->LineTraceSingleByObjectType(HitResult, RayOrigin, RayEnd, ObjectParams, CollisionParams);
 
 	
-	if (bHit && VisualComponent != nullptr) 
+	if (bHit) 
 	{
 		FVector wantedPos(0, 0, HitResult.Distance);
 		VisualComponent->SetRelativeLocation(wantedPos);
 
-		
 		return HitResult.Distance;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("LineTrace didn't hit anything"))
 	}
 	
 	return 0;
