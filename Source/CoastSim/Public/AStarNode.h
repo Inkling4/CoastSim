@@ -24,8 +24,19 @@ UCLASS(BlueprintType)
 class COASTSIM_API AAStarNode : public AActor
 {
 	GENERATED_BODY()
-public:
+protected:
 	
 
+	
+public:
+	AAStarNode();
+	
+	// Returns the Heuristic of this node in cm for the given location to travel.
+	// Disregards the Z axis.
+	// InGoalLocation: Coordinates you wish to go to.
+	UFUNCTION(BlueprintCallable, category = "AStar")
+	float GetHeuristicCost(FVector2D InGoalLocation);
+	
+	
 	
 };
