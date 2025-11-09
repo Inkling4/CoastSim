@@ -27,7 +27,7 @@ void AAStarNode::BeginPlay()
 		AAStarNode* neighbor = Cast<AAStarNode>(Node);
 		neighbors.Add(neighbor);
 	}
-	
+	Neighbors = neighbors;
 }
 
 
