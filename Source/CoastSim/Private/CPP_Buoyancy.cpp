@@ -26,9 +26,7 @@ void UCPP_Buoyancy::BeginPlay()
 	OwnerActor = GetOwner();
 	USceneComponent* rootComponent = OwnerActor->GetRootComponent();
 	
-	VisualComponent = Cast<USceneComponent>(OwnerActor->GetDefaultSubobjectByName(TEXT("Visual")));
-	if (VisualComponent == nullptr)
-		UE_LOG(LogTemp, Error, TEXT("No Visual Component on buoyancy object"))
+	//VisualComponent = Cast<USceneComponent>(OwnerActor->GetDefaultSubobjectByName(TEXT("Visual"))); if (VisualComponent == nullptr) UE_LOG(LogTemp, Error, TEXT("No Visual Component on buoyancy object"))
 }
 
 
@@ -39,7 +37,6 @@ void UCPP_Buoyancy::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 	// ...
 
-	
 		SurfaceAveragePos();
 	
 }
@@ -49,7 +46,7 @@ float UCPP_Buoyancy::SurfaceAveragePos()
 	AActor* owner = GetOwner();
 
 	
-	FHitResult HitResult;
+	TArray<FHitResult> HitResults;
 	FVector RayOrigin = owner->GetActorLocation();
 	float RayDistance = 1000.0f;
 	FVector RayEnd = RayOrigin + FVector(0, 0, RayDistance);
@@ -60,20 +57,39 @@ float UCPP_Buoyancy::SurfaceAveragePos()
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(owner); // Ignore own actor
 
-	bool bHit = GetWorld()->LineTraceSingleByObjectType(HitResult, RayOrigin, RayEnd, ECC_GameTraceChannel1, CollisionParams);
+	//bool bHit = GetWorld()->LineTraceSingleByObjectType(HitResults, RayOrigin, RayEnd, ECC_GameTraceChannel1, CollisionParams);
+	bool bHit = GetWorld()->LineTraceMultiByChannel(HitResults, RayOrigin, RayEnd, ECC_WorldStatic, CollisionParams);
 
+	DrawDebugLine(GetWorld(), RayOrigin, RayEnd, FColor::Yellow, false, -1, 0, 1);
+
+	//FString Msg = FString::Printf(TEXT("%f %f %f"), RayOrigin.X, RayOrigin.Y, RayOrigin.Z);	GEngine->AddOnScreenDebugMessage(-1, -1, FColor::Red, Msg);
 	
-	if (bHit && VisualComponent != nullptr) 
+	if (bHit && VisualComponent != nullptr)
 	{
-		FVector wantedPos(0, 0, HitResult.Distance);
-		VisualComponent->SetRelativeLocation(wantedPos);
+		for (FHitResult Hit : HitResults)
+		{
+			//UE_LOG(LogTemp, Log, TEXT("Moving component"));
+			UE_LOG(LogTemp, Log, TEXT("%f"), Hit.Distance);
+			
+			FVector wantedPos(0, 0, Hit.Distance);
 
-		
-		return HitResult.Distance;
+			// Set floating object to surface position
+			VisualComponent->SetRelativeLocation(wantedPos);
+			
+			//OwnerActor->SetActorLocation(wantedPos);
+			if (Hit.GetActor()->GetName() == TEXT("OceanMesh"))
+			{
+				
+			}
+		}
+	}
+	else if (!bHit)
+	{
+		UE_LOG(LogTemp, Log, TEXT("LineTrace didn't hit anything"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("LineTrace didn't hit anything"))
+		UE_LOG(LogTemp, Log, TEXT("No Visual Component"));
 	}
 	
 	return 0;
