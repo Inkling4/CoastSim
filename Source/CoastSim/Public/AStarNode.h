@@ -25,16 +25,22 @@ class COASTSIM_API AAStarNode : public AActor
 {
 	GENERATED_BODY()
 protected:
-
+	
 	// State of this node
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	ENodeState NodeState = ENodeState::Default;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	bool bIsWalkable = true;
 	
+	
 public:
 	AAStarNode();
 
+	// Decides how difficult it is to traverse this node, as a multiplier.
+	// Default value is 1.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, category = "AStar")
+	float TerrainDifficulty = 1.f;
+	
 	// Returns the current state of this node.
 	ENodeState GetNodeState() const;
 

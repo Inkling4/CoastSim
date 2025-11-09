@@ -11,6 +11,9 @@ AAStarNode::AAStarNode()
 	
 }
 
+
+
+
 float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 {
 	FVector2D nodeLocation {GetActorLocation().X, GetActorLocation().Y};
