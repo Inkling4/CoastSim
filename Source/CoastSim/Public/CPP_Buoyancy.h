@@ -27,8 +27,9 @@ public:
 protected:
 	// ...
 	
-	UPROPERTY(EditAnywhere, Category="References")
-	USceneComponent* VisualComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="References")
+	//USceneComponent* VisualComponent;
+	UStaticMeshComponent* VisualComponent;
 
 	AActor* OwnerActor;
 	
