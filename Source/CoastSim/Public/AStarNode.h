@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "AStarNode.generated.h"
 
-
 // Enum for showing the node state for A*
 UENUM(BlueprintType) 
 enum class ENodeState : uint8
@@ -20,11 +19,23 @@ enum class ENodeState : uint8
 	End
 };
 
+class USphereComponent;
+
+/*
+ * Nodes for A* pathfinding.
+ * Please make sure to place them in a grid, so the spehere component detects nodes properly.
+ *
+ */
+
 UCLASS(BlueprintType)
 class COASTSIM_API AAStarNode : public AActor
 {
 	GENERATED_BODY()
 protected:
+
+	// For neighbor node detection
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AStar")
+	TObjectPtr<USphereComponent> SphereComponent;
 	
 	// State of this node
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
@@ -59,6 +70,6 @@ public:
 	UFUNCTION(BlueprintCallable, category = "AStar")
 	float GetHeuristicCost(FVector2D InGoalLocation);
 
-	
-	
+	TArray<TObjectPtr<AStarNode>> GetNeighbors();
+
 };

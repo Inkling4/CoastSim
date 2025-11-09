@@ -12,7 +12,7 @@
  *
  */
 
-
+class AStarNode;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COASTSIM_API UAStarComponent : public UActorComponent
@@ -30,6 +30,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	// Call this function to move the actor to the node specified, using pathfinding.
+	void PathFindTo(TObjectPtr<AStarNode> AStarNode);
 
 		
 };

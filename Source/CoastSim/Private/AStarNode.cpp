@@ -3,6 +3,7 @@
 
 #include "AStarNode.h"
 #include "Kismet/KismetMathLibrary.h" // For square root function
+#include "Components/SphereComponent.h"
 
 AAStarNode::AAStarNode()
 {
@@ -33,6 +34,20 @@ float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 
 }
 
+TArray<TObjectPtr<AStarNode>> AAStarNode::GetNeighbors()
+{
+	TArray<TObjectPtr<AStarNode>> neighbors;
+
+	
+
+	
+	
+	
+}
+
+
+
+
 ENodeState AAStarNode::GetNodeState() const
 {
 	return NodeState;
@@ -51,3 +66,5 @@ void AAStarNode::EnableNode()
 {
 	bIsWalkable = true;
 }
+
+
