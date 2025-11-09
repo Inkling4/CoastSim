@@ -9,8 +9,7 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine",
-				"Water"
+				"Engine"
 			]
 		}
 	],
@@ -21,10 +20,6 @@
 			"TargetAllowList": [
 				"Editor"
 			]
-		},
-		{
-			"Name": "Water",
-			"Enabled": true
 		}
 	]
 }
