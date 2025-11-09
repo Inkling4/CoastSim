@@ -9,7 +9,9 @@ AAStarNode::AAStarNode()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	
+	// Creates sphere for neighbor detection.
+	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
+	SphereComponent->SetupAttachment(RootComponent);
 }
 
 
@@ -34,13 +36,14 @@ float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 
 }
 
-TArray<TObjectPtr<AStarNode>> AAStarNode::GetNeighbors()
+TArray<TObjectPtr<AAStarNode>> AAStarNode::GetNeighbors()
 {
-	TArray<TObjectPtr<AStarNode>> neighbors;
+	TArray<TObjectPtr<AAStarNode>> neighbors;
 
 	
-
-	
+	// CURRENTLY NULL!
+	// Don't call this yet!
+	return neighbors; 
 	
 	
 }

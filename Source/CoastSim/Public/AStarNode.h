@@ -70,6 +70,6 @@ public:
 	UFUNCTION(BlueprintCallable, category = "AStar")
 	float GetHeuristicCost(FVector2D InGoalLocation);
 
-	TArray<TObjectPtr<AStarNode>> GetNeighbors();
+	TArray<TObjectPtr<AAStarNode>> GetNeighbors();
 
 };
