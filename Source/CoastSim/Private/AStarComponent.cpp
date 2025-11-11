@@ -21,9 +21,9 @@ void UAStarComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TArray<AActor*> AStarActors;
-
+	
 	// Gets all AStarNodes, and adds them to array.
+	TArray<AActor*> AStarActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld()->GetCurrentLevel(), AActor::StaticClass(), AStarActors);
 	for (auto Node : AStarActors)
 	{
@@ -35,6 +35,7 @@ void UAStarComponent::BeginPlay()
 			AStarNodes.Add(CastedNode);
 		}
 	}
+
 	
 	
 }
