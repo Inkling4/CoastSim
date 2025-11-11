@@ -34,8 +34,9 @@ class COASTSIM_API AAStarNode : public AActor
 protected:
 
 	FTimerHandle NeighborDetectionTimerHandle;
+	
 
-	// For neighbor node detection
+	// For neighbor node detection. Deletes itself after finding the neighbors.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AStar")
 	TObjectPtr<USphereComponent> SphereComponent;
 

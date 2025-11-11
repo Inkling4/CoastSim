@@ -3,6 +3,7 @@
 
 #include "AStarComponent.h"
 #include "AStarNode.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UAStarComponent::UAStarComponent()
@@ -20,8 +21,25 @@ void UAStarComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	TArray<AActor*> AStarActors;
+
+	// Gets all AStarNodes, and adds them to array.
+	UGameplayStatics::GetAllActorsOfClass(GetWorld()->GetCurrentLevel(), AActor::StaticClass(), AStarActors);
+	for (auto Node : AStarActors)
+	{
+		AAStarNode* CastedNode;
+		// Does not add actor to the array if it is of the wrong class.
+		CastedNode = Cast<AAStarNode>(Node);
+		if (CastedNode != nullptr)
+		{
+			AStarNodes.Add(CastedNode);
+		}
+	}
+	
 	
 }
+
+
 
 
 // Called every frame
@@ -32,7 +50,7 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 }
 
 
-void UAStarComponent::PathFindTo(TObjectPtr<AStarNode> AStarNode)
+void UAStarComponent::PathFindTo(TObjectPtr<AAStarNode> AStarNode)
 {
 	if (AStarNode == nullptr)
 	{

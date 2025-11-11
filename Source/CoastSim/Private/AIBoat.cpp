@@ -15,8 +15,10 @@ AAIBoat::AAIBoat()
 void AAIBoat::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 }
+
 
 // Called every frame
 void AAIBoat::Tick(float DeltaTime)

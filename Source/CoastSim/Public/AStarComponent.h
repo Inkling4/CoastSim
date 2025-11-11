@@ -12,12 +12,13 @@
  *
  */
 
-class AStarNode;
+class AAStarNode;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COASTSIM_API UAStarComponent : public UActorComponent
 {
 	GENERATED_BODY()
+
 
 public:	
 	// Sets default values for this component's properties
@@ -26,13 +27,15 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
+	TArray<AAStarNode*> AStarNodes;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// Call this function to move the actor to the node specified, using pathfinding.
-	void PathFindTo(TObjectPtr<AStarNode> AStarNode);
+	void PathFindTo(TObjectPtr<AAStarNode> AStarNode);
 
 		
 };

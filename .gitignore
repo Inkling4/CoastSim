@@ -79,3 +79,4 @@ DerivedDataCache/*
 .idea/
 .vscode/
 Makefile
+/Content/Levels/_GENERATED

@@ -18,12 +18,15 @@ void AAStarNode::BeginPlay()
 {
 	Super::BeginPlay();
 	// Calls FindNeighbors after half a second to make the detection actually find everyone properly.
+	// THIS DELETES THE SPHERE!
 	GetWorld()->GetTimerManager().SetTimer(NeighborDetectionTimerHandle, this, &AAStarNode::FindNeighbors, 0.5f, false);
 	
 }
 
 void AAStarNode::FindNeighbors()
 {
+	if (SphereComponent == nullptr){ return;}
+	
 	TArray<AAStarNode*> neighbors;
         
     	TArray<AActor*> OverlappingActors;
@@ -39,6 +42,9 @@ void AAStarNode::FindNeighbors()
     		
     	}
     	Neighbors = neighbors;
+		
+		
+		SphereComponent->DestroyComponent();
 }
 
 

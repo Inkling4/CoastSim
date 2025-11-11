@@ -6,10 +6,13 @@
 #include "GameFramework/Pawn.h"
 #include "AIBoat.generated.h"
 
+class AAStarNode;
+
 UCLASS()
 class COASTSIM_API AAIBoat : public APawn
 {
 	GENERATED_BODY()
+private:
 
 public:
 	// Sets default values for this pawn's properties
