@@ -13,6 +13,7 @@
  */
 
 class AAStarNode;
+class AAStarGlobals;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COASTSIM_API UAStarComponent : public UActorComponent
@@ -27,8 +28,10 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
-	TArray<AAStarNode*> AStarNodes;
+
+	UPROPERTY()
+	TObjectPtr<AAStarGlobals> AStarGlobals;
+	
 
 public:	
 	// Called every frame

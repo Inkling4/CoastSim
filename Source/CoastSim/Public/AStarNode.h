@@ -10,7 +10,6 @@
 UENUM(BlueprintType) 
 enum class ENodeState : uint8
 {
-	Default,
 	Blocked,
 	Open,
 	Closed,
@@ -31,12 +30,15 @@ UCLASS(BlueprintType)
 class COASTSIM_API AAStarNode : public AActor
 {
 	GENERATED_BODY()
+
+	
 protected:
 
 	FTimerHandle NeighborDetectionTimerHandle;
 	
 
 	// For neighbor node detection. Deletes itself after finding the neighbors.
+	// Do not reference in code, as it deletes itself in BeginPlay().
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AStar")
 	TObjectPtr<USphereComponent> SphereComponent;
 
@@ -49,7 +51,7 @@ protected:
 	
 	// State of this node
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
-	ENodeState NodeState = ENodeState::Default;
+	ENodeState NodeState = ENodeState::Open;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	bool bIsWalkable = true;
 	

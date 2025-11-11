@@ -17,9 +17,9 @@ AAStarNode::AAStarNode()
 void AAStarNode::BeginPlay()
 {
 	Super::BeginPlay();
-	// Calls FindNeighbors after half a second to make the detection actually find everyone properly.
-	// THIS DELETES THE SPHERE!
-	GetWorld()->GetTimerManager().SetTimer(NeighborDetectionTimerHandle, this, &AAStarNode::FindNeighbors, 0.5f, false);
+	// Calls FindNeighbors after a small time to make the detection actually find everyone properly.
+	// THIS DELETES THE SPHERE! DON'T USE THE POINTER FOR OTHER THINGS!!
+	GetWorld()->GetTimerManager().SetTimer(NeighborDetectionTimerHandle, this, &AAStarNode::FindNeighbors, 0.1f, false);
 	
 }
 
@@ -90,10 +90,12 @@ bool AAStarNode::GetIsWalkable()
 void AAStarNode::DisableNode()
 {
 	bIsWalkable = false;
+	NodeState = ENodeState::Blocked;
 }
 void AAStarNode::EnableNode()
 {
 	bIsWalkable = true;
+	NodeState = ENodeState::Open;
 }
 
 
