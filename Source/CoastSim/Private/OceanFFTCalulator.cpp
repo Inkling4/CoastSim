@@ -290,12 +290,16 @@ void FOceanFFTCalculator::ShowDebugDisplacementPoints(UWorld* World, const FVect
                 if (X == DebugGridHalfSize && Y == DebugGridHalfSize)
                     Color = FColor(255.f, 0.f, 0.f, 255.f);
 
-                DrawDebugPoint(World, GridPointLocation + Displacement, 5.f, Color, false, 0.f, 0);
+                scale = 1;
+                overlapScale = 4;
+                multiplyScale = 1;
+                
+                DrawDebugPoint(World, GridPointLocation * scale / multiplyScale + Displacement / scale / overlapScale, 5.f, Color, false, 0.f, 0); // * scale/multiplyScale /scale/overlapScale
 
                 if ((X - DebugGridHalfSize) >= -3 && (X - DebugGridHalfSize) <= 3 &&
                     (Y - DebugGridHalfSize) >= -3 && (Y - DebugGridHalfSize) <= 3)
                 {
-                    DrawDebugString(World, GridPointLocation, LexToString(Displacement.Z), nullptr, Color, 0.f);
+                    DrawDebugString(World, GridPointLocation * scale / multiplyScale, LexToString(Displacement.Z), nullptr, Color, 0.f); // * scale/multiplyScale
                 }
             }
         }
