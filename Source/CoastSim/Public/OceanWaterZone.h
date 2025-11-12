@@ -17,9 +17,7 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     bool ShouldTickIfViewportsOnly() const;
 
-    void UpdatePosition(FVector NewLocation);
-
-private:
+    //void UpdatePosition(FVector NewLocation);
 
     FOceanFFTCalculator FFTCalculator;
 };
