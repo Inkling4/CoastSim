@@ -3,10 +3,10 @@
 #include "CoreMinimal.h"
 
 // Needed to emulate Random properly
-#define GPU_GRID_SIZE 64 
-#define BUTTERFLY_COUNT 6
+#define GPU_GRID_SIZE 256 
+#define BUTTERFLY_COUNT 8 // Butterfly count is 2^n = gridsize
 
-#define GRID_SIZE 64
+#define GRID_SIZE 256
 #define NUM_CASCADES 4
 #define PING_PONG_SLOTS 4
 
@@ -40,7 +40,7 @@ public:
     float BaseFrequency = 2.f * PI / RepeatPeriod;
 
     // wind control params
-    float WindSpeed = 44.f;
+    float WindSpeed = 16.f;
     float WindDirection = 90.f;
     double WindDir[2]; // FVector2
 

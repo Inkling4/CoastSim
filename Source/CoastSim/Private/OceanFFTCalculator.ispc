@@ -1,7 +1,7 @@
 #include "Math/Vector.isph"
 
 #define PING_PONG_SLOTS 4
-#define GRID_SIZE 64
+#define GRID_SIZE 256
 #define NUM_CASCADES 4
 
 struct int2

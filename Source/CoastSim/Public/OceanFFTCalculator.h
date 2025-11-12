@@ -28,7 +28,7 @@ private:
 private:
 
     const int32 DebugGridSize = 10;
-    const float DebugGridCellSize = 200.f;
+    const float DebugGridCellSize = 500.f;
 
     FVector GetCascadeValue(FVector PointLocation, int32 CascadeIndex);
 
