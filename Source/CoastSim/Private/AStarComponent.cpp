@@ -31,6 +31,10 @@ void UAStarComponent::BeginPlay()
 	{
 		AStarGlobals = Cast<AAStarGlobals>(GlobalsActor);
 	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No AStar Component found!"));
+	}
 
 	
 }
@@ -46,12 +50,11 @@ void UAStarComponent::AStarMoveTo(const AAStarNode* TargetNode)
 void UAStarComponent::ChangeDirection()
 {
 	// Z values as 0 to make the kismet math function work
-	FVector CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y, 0.f};
+	FVector CurrentLocation {CurrentNode->GetActorLocation().X, CurrentNode->GetActorLocation().Y, 0.f};
 	FVector NextGoalLocation {NextNode->GetActorLocation().X, NextNode->GetActorLocation().Y, 0.f};
-	
-	
-	FVector TempNewDirection;
-	TempNewDirection = UKismetMathLibrary::GetDirectionUnitVector(CurrentLocation, NextGoalLocation);
+
+
+	FVector TempNewDirection = UKismetMathLibrary::GetDirectionUnitVector(CurrentLocation, NextGoalLocation);
 	// Applies changes to the movement direction property
 	FVector2D NewDirection {TempNewDirection.X, TempNewDirection.Y};
 	MovementDirection = NewDirection;
@@ -112,7 +115,7 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 // Finds the closest node to the owner of this component
 AAStarNode* UAStarComponent::GetCurrentNode()
 {
-	FVector2D ActorLocation  {GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y};
+	FVector2D ActorLocation  {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y};
 	if (AStarGlobals == nullptr) {return nullptr;}
 	
 	
@@ -136,7 +139,11 @@ AAStarNode* UAStarComponent::GetCurrentNode()
 		} 
 	}
 	
-	if (closestNode == nullptr){ return nullptr; }
+	if (closestNode == nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Finding closest node failed!"));
+		return nullptr;
+	}
 	
 	return closestNode;
 	
@@ -161,6 +168,7 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	// TESTING!!!! Unfinished
 	GoalNode = AStarNode;
 	MovementQueue.push(GoalNode);
+	CurrentNode = GetCurrentNode();
 	NextNode = GoalNode;
 	bIsMoving = true;
 	
