@@ -99,7 +99,7 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		}
 		else
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Either OwnerActor or NextActor is null!"));
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Either OwnerActor or NextActor is null!"));
 		}
 	}
 	
