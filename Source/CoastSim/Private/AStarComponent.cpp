@@ -11,9 +11,9 @@ UAStarComponent::UAStarComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	
-	
+	OwnerActor = GetOwner();
 
 	
 }
@@ -34,16 +34,69 @@ void UAStarComponent::BeginPlay()
 
 void UAStarComponent::AStarMoveTo(const AAStarNode* TargetNode)
 {
-	TObjectPtr<AActor> OwnerActor = GetOwner();
+	if (TargetNode == nullptr) {return;}
 	
 	
 }
 
+void UAStarComponent::ChangeDirection()
+{
+	FVector2D CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y};
+	FVector2D NextGoalLocation {NextNode->GetActorLocation().X, NextNode->GetActorLocation().Y};
+	
+	FVector2D NewDirection;
+	NewDirection.X = NextGoalLocation.X - CurrentLocation.X;
+	NewDirection.Y = NextGoalLocation.Y - CurrentLocation.Y;
+	
+	// Turns it into unit vector
+	NewDirection /= NewDirection.Length();
+	
+	
+}
 
 // Called every frame
 void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	if (OwnerActor != nullptr && NextNode != nullptr)
+	{
+		if (bIsMoving)
+		{
+			// Called to change the direction vector
+			ChangeDirection();
+			
+			
+			// Gets distance to next node
+			float oldDistance = NextNode->GetHeuristicCost(FVector2D {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y});
+			
+			
+			FVector CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y, OwnerActor->GetActorLocation().Z};
+			CurrentLocation.X += MovementDirection.X * MovementSpeed * DeltaTime;
+			CurrentLocation.Y += MovementDirection.Y * MovementSpeed * DeltaTime;
+			
+			// Sets new location
+			OwnerActor->SetActorLocation(CurrentLocation);
+			
+			float newDistance = NextNode->GetHeuristicCost(FVector2D {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y});
+			
+			// Checks if you have passed over the node
+			if (newDistance > oldDistance || newDistance <= 10.f)
+			{
+				if (NextNode != GoalNode)
+				{
+					NextNode = MovementQueue.top();
+					MovementQueue.pop();
+				}
+				
+			}
+			
+			
+		}
+        	
+	}
+	
+	
 
 }
 
@@ -88,8 +141,6 @@ void UAStarComponent::PathFindTo(const AAStarNode* AStarNode)
 		UE_LOG(LogTemp, Warning, TEXT("AStarNode goal in pathfinding is null."));
 		return;
 	}
-	
-	TObjectPtr<AActor> OwnerActor = GetOwner();
 	
 	TObjectPtr<AAStarNode> StartNode = GetCurrentNode();
 	if (StartNode == nullptr)

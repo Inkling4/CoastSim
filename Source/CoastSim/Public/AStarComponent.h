@@ -27,10 +27,35 @@ public:
 	UAStarComponent();
 	
 protected:
+	
+	// Changes direction for next node
+	void ChangeDirection();
+	
+	// The actor that has this component attached.
+	UPROPERTY()
+	TObjectPtr<AActor> OwnerActor;
+	
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
-
+	// Movement speed for A* movement
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, category = "AStar")
+	float MovementSpeed = 100.f;
+	// If true, will move in movementdirection
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
+	bool bIsMoving = false;
+	// Current direction of movement. Should be between -1 and 1
+	UPROPERTY()
+	FVector2D MovementDirection {0, 0};
+	// The next node to move to
+	UPROPERTY()
+	AAStarNode* NextNode;
+	// The end goal
+	UPROPERTY()
+	AAStarNode* GoalNode;
+	
+	
+	
 	UPROPERTY()
 	TObjectPtr<AAStarGlobals> AStarGlobals;
 	
