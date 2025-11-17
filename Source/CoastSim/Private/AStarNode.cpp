@@ -52,13 +52,20 @@ void AAStarNode::FindNeighbors()
 
 float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 {
-	FVector2D nodeLocation {GetActorLocation().X, GetActorLocation().Y};
-	FVector2D distanceVector {0, 0};
+
+	
+	// Current location
+	const FVector2D nodeLocation {GetActorLocation().X, GetActorLocation().Y};
+	// Target location
+	const FVector2D goalLocation = InGoalLocation;
+	
+	FVector2D distanceVector;
+	
 
 	// Finds the vector between the goal point and this node.
 	// Negative numbers won't matter, as they will become positive through pythagoras math
-	distanceVector.X = nodeLocation.X - InGoalLocation.X;
-	distanceVector.Y = nodeLocation.Y - InGoalLocation.Y;
+	distanceVector.X = nodeLocation.X - goalLocation.X;
+	distanceVector.Y = nodeLocation.Y - goalLocation.Y;
 
 	// Calculates the distance using pythagoras.
 	float heuristic = UKismetMathLibrary::Sqrt(distanceVector.X * distanceVector.X + distanceVector.Y * distanceVector.Y);

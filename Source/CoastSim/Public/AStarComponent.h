@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include <queue>
 #include "AStarComponent.generated.h"
 
 /*
@@ -28,17 +29,30 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
 
 	UPROPERTY()
 	TObjectPtr<AAStarGlobals> AStarGlobals;
 	
+	UFUNCTION()
+	AAStarNode* GetCurrentNode();
+	
+	// Priority queue for movement. Uses standard C++ library
+	std::priority_queue<AAStarNode*> MovementQueue;
+	
+	// Moves owner actor to AStarNode
+	UFUNCTION()
+	void AStarMoveTo (const AAStarNode* TargetNode);
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// Call this function to move the actor to the node specified, using pathfinding.
-	void PathFindTo(TObjectPtr<AAStarNode> AStarNode);
+	UFUNCTION(BlueprintCallable, category = "AStar")
+	void PathFindTo(const AAStarNode* AStarNode);
+	
+	
 
 		
 };
