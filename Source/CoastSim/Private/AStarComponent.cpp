@@ -23,6 +23,8 @@ UAStarComponent::UAStarComponent()
 void UAStarComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	// Being double sure this runs
+	OwnerActor = GetOwner();
 	
 	if (TObjectPtr<AActor> GlobalsActor = UGameplayStatics::GetActorOfClass(GetWorld()->GetCurrentLevel(), AAStarGlobals::StaticClass()))
 	{
@@ -59,9 +61,9 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	if (OwnerActor != nullptr && NextNode != nullptr)
+	if (bIsMoving)
 	{
-		if (bIsMoving)
+		if (OwnerActor != nullptr && NextNode != nullptr)
 		{
 			// Called to change the direction vector
 			ChangeDirection();
@@ -77,6 +79,7 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			
 			// Sets new location
 			OwnerActor->SetActorLocation(CurrentLocation);
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Movement called!"));
 			
 			float newDistance = NextNode->GetHeuristicCost(FVector2D {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y});
 			
@@ -88,13 +91,18 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 					NextNode = MovementQueue.top();
 					MovementQueue.pop();
 				}
-				
+				else
+				{
+					bIsMoving = false;
+				}
 			}
-			
-			
 		}
-        	
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Either OwnerActor or NextActor is null!"));
+		}
 	}
+	
 	
 	
 
@@ -134,7 +142,7 @@ AAStarNode* UAStarComponent::GetCurrentNode()
 }
 
 
-void UAStarComponent::PathFindTo(const AAStarNode* AStarNode)
+void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 {
 	if (AStarNode == nullptr)
 	{
@@ -149,12 +157,12 @@ void UAStarComponent::PathFindTo(const AAStarNode* AStarNode)
 		return;
 	}
 	
-	
-	
-	
-	
-	
-	
+	// TESTING!!!! Unfinished
+	GoalNode = AStarNode;
+	MovementQueue.push(AStarGlobals->GetAStarNodes()[20]);
+	MovementQueue.push(GoalNode);
+	NextNode = MovementQueue.top();
+	bIsMoving = true;
 	
 	
 }

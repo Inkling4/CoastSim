@@ -56,7 +56,7 @@ protected:
 	
 	
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, category = "AStar")
 	TObjectPtr<AAStarGlobals> AStarGlobals;
 	
 	UFUNCTION()
@@ -75,7 +75,7 @@ public:
 
 	// Call this function to move the actor to the node specified, using pathfinding.
 	UFUNCTION(BlueprintCallable, category = "AStar")
-	void PathFindTo(const AAStarNode* AStarNode);
+	void PathFindTo(AAStarNode* AStarNode);
 	
 	
 
