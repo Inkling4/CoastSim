@@ -51,7 +51,7 @@ void UAStarComponent::ChangeDirection()
 	// Turns it into unit vector
 	NewDirection /= NewDirection.Length();
 	
-	
+	MovementDirection = NewDirection;
 }
 
 // Called every frame
