@@ -4,6 +4,7 @@
 #include "AStarComponent.h"
 #include "AStarNode.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "AStarGlobals.h"
 
 // Sets default values for this component's properties
@@ -41,18 +42,18 @@ void UAStarComponent::AStarMoveTo(const AAStarNode* TargetNode)
 	
 }
 
+// Currently broken
 void UAStarComponent::ChangeDirection()
 {
-	FVector2D CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y};
-	FVector2D NextGoalLocation {NextNode->GetActorLocation().X, NextNode->GetActorLocation().Y};
+	// Z values as 0 to make the kismet math function work
+	FVector CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y, 0.f};
+	FVector NextGoalLocation {NextNode->GetActorLocation().X, NextNode->GetActorLocation().Y, 0.f};
 	
-	FVector2D NewDirection;
-	NewDirection.X = NextGoalLocation.X - CurrentLocation.X;
-	NewDirection.Y = NextGoalLocation.Y - CurrentLocation.Y;
 	
-	// Turns it into unit vector
-	NewDirection /= NewDirection.Length();
-	
+	FVector TempNewDirection;
+	TempNewDirection = UKismetMathLibrary::GetDirectionUnitVector(CurrentLocation, NextGoalLocation);
+	// Applies changes to the movement direction property
+	FVector2D NewDirection {TempNewDirection.X, TempNewDirection.Y};
 	MovementDirection = NewDirection;
 }
 
@@ -73,13 +74,13 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			float oldDistance = NextNode->GetHeuristicCost(FVector2D {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y});
 			
 			
-			FVector CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y, OwnerActor->GetActorLocation().Z};
+			FVector CurrentLocation {OwnerActor->GetActorLocation()};
 			CurrentLocation.X += MovementDirection.X * MovementSpeed * DeltaTime;
 			CurrentLocation.Y += MovementDirection.Y * MovementSpeed * DeltaTime;
 			
 			// Sets new location
 			OwnerActor->SetActorLocation(CurrentLocation);
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Movement called!"));
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Movement called!"));
 			
 			float newDistance = NextNode->GetHeuristicCost(FVector2D {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y});
 			
@@ -159,9 +160,8 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	
 	// TESTING!!!! Unfinished
 	GoalNode = AStarNode;
-	MovementQueue.push(AStarGlobals->GetAStarNodes()[20]);
 	MovementQueue.push(GoalNode);
-	NextNode = MovementQueue.top();
+	NextNode = GoalNode;
 	bIsMoving = true;
 	
 	
