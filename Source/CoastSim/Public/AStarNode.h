@@ -19,6 +19,7 @@ enum class ENodeState : uint8
 };
 
 class USphereComponent;
+class UStaticMeshComponent;
 
 /*
  * Nodes for A* pathfinding.
@@ -36,6 +37,8 @@ protected:
 
 	FTimerHandle NeighborDetectionTimerHandle;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStaticMeshComponent> MyRootComponent;
 
 	// For neighbor node detection. Deletes itself after finding the neighbors.
 	// Do not reference in code, as it deletes itself in BeginPlay().

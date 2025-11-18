@@ -4,14 +4,20 @@
 #include "AStarNode.h"
 #include "Kismet/KismetMathLibrary.h" // For square root function
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 AAStarNode::AAStarNode()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	
+	MyRootComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyRootComponent"));
+	SetRootComponent(MyRootComponent);
+	
 	// Creates sphere for neighbor detection.
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
 	SphereComponent->SetupAttachment(RootComponent);
+	
 }
 
 void AAStarNode::BeginPlay()

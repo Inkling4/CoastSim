@@ -57,7 +57,7 @@ protected:
 	UPROPERTY()
 	AAStarNode* CurrentNode;
 	
-	UPROPERTY(BlueprintReadOnly, category = "AStar")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, category = "AStar")
 	TObjectPtr<AAStarGlobals> AStarGlobals;
 	
 	UFUNCTION()

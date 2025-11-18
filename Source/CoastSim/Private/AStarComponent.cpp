@@ -4,7 +4,7 @@
 #include "AStarComponent.h"
 #include "AStarNode.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
+//#include "Kismet/KismetMathLibrary.h"
 #include "AStarGlobals.h"
 
 // Sets default values for this component's properties
@@ -31,6 +31,7 @@ void UAStarComponent::BeginPlay()
 	{
 		AStarGlobals = Cast<AAStarGlobals>(GlobalsActor);
 	}
+	
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No AStar Component found!"));
@@ -50,15 +51,18 @@ void UAStarComponent::AStarMoveTo(const AAStarNode* TargetNode)
 void UAStarComponent::ChangeDirection()
 {
 	// Z values as 0 to make the kismet math function work
-	FVector CurrentLocation {CurrentNode->GetActorLocation().X, CurrentNode->GetActorLocation().Y, 0.f};
+	FVector CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y, 0.f};
 	FVector NextGoalLocation {NextNode->GetActorLocation().X, NextNode->GetActorLocation().Y, 0.f};
 
 
-	FVector TempNewDirection = UKismetMathLibrary::GetDirectionUnitVector(CurrentLocation, NextGoalLocation);
-	// Applies changes to the movement direction property
+	FVector TempNewDirection = (NextGoalLocation - CurrentLocation).GetSafeNormal();
+	
+		//UKismetMathLibrary::GetDirectionUnitVector(CurrentLocation, NextGoalLocation);
+			// Applies changes to the movement direction property
 	FVector2D NewDirection {TempNewDirection.X, TempNewDirection.Y};
+	// GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("Goal location Y coords are: %f %f"), NextGoalLocation.X, NextGoalLocation.Y));
 	MovementDirection = NewDirection;
-}
+}	
 
 // Called every frame
 void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
