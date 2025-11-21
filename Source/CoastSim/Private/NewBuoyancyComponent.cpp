@@ -72,7 +72,7 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 }
 
 
-
+// ?Finds the location of the pontoon points that is dislocated by the FFT water shading
 FVector UNewBuoyancyComponent::GetBuoyancyLocation(FVector RelativeLocation)
 {
 	FVector BuoyancyLocation = FVector::ZeroVector;
@@ -89,6 +89,8 @@ FVector UNewBuoyancyComponent::GetBuoyancyLocation(FVector RelativeLocation)
 	}
 }
 
+
+// ?Get the avarage location of all pontoons to determine the bouyant location
 FVector UNewBuoyancyComponent::GetMultiBuoyancyLocation(TArray<FVector> PontoonsArray)
 {
 	FVector BuoyancyLocation = FVector::ZeroVector;
@@ -142,6 +144,8 @@ TArray<FVector> UNewBuoyancyComponent::GetBuoyancyArray(TArray<FVector> Points)
 	return PointArray;
 }
 
+
+// Lerps the different rotations calculated by the CalculateWaveRotation() based on the distance to the parent actor (blueprint root)
 FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Points)
 {
 	FQuat AverageRotation = FQuat::Identity;
@@ -159,15 +163,19 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 	return AverageRotation;
 }
 
+
+// Calculates the angle from the parent actor location (blueprint root) to the WavePoint relative to the z-axis
 FQuat UNewBuoyancyComponent::CalculateWaveRotation(const FVector& WavePoint)
 {
-	FVector TargetVector(0.0f, 0.0f, 1.0f);
+	FVector TargetVector(0.0f, 0.0f, 1.0f); // z-axis
 	FVector WaveDirection = (WavePoint - ParentActor->GetActorLocation()).GetSafeNormal();
 	FQuat WaveRotation = FQuat::FindBetween(WaveDirection, TargetVector);
 
 	return WaveRotation;
 }
 
+
+// Draw translated pontoon placements to the scene
 void UNewBuoyancyComponent::DrawBuoyancyArrayDebugPoints(const TArray<FVector>& BuoyancyArray)
 {
 	for (const FVector& Point : BuoyancyArray)
