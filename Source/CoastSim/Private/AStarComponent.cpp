@@ -96,8 +96,8 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			{
 				if (NextNode != GoalNode)
 				{
-					NextNode = MovementQueue.top();
-					MovementQueue.pop();
+					// TODO: Make it move according to the pathfinding
+					
 				}
 				else
 				{
@@ -153,6 +153,27 @@ AAStarNode* UAStarComponent::GetCurrentNode()
 	
 }
 
+AAStarNode* UAStarComponent::GetBestNode(TArray<AAStarNode*> InAStarNodes)
+{
+	AAStarNode* bestNode = nullptr;
+	for (auto Node : InAStarNodes)
+	{
+		if (bestNode == nullptr)
+		{
+			bestNode = Node;
+		}
+		else
+		{
+			if (bestNode->GetFValue() > Node->GetFValue()) // Compares F Values.
+			{
+				bestNode = Node;
+			}
+		}
+	}
+	
+	return bestNode;
+}
+
 
 void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 {
@@ -169,12 +190,66 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 		return;
 	}
 	
+	TObjectPtr<AAStarNode> CurrentNode = StartNode;
+	
 	NodesToExplore.Empty(); // Empties the nodes to explore list.
 	NodesExplored.Empty(); // Empties the "explored" list.
 	GoalNode = AStarNode;
 	
 	// The pathfinding starts here.
+	StartNode->SetFValue(0); // Sets f value to 0 as it's the starter node.
+	StartNode->SetGValue(0);
 	NodesToExplore.Add(StartNode);
+	
+	FVector2D GoalNodeLocation {GoalNode->GetActorLocation().X, GoalNode->GetActorLocation().Y};
+	
+	while (!NodesToExplore.IsEmpty())
+	{
+		for (auto Neighbor : CurrentNode->GetNeighbors())
+		{
+			FVector2D NeighborLocation {Neighbor->GetActorLocation().X, Neighbor->GetActorLocation().Y};
+			
+			if (Neighbor == GoalNode)
+			{
+				// You win! TODO
+			}
+			
+			// Sets F Values on the neighbor nodes.
+			{
+				
+			
+				// The G Value of the current node (total cost from start node)
+				float PreviousGValue = CurrentNode->GetGValue();
+				// Multiplier for terrain difficulty.
+				float TerrainDifficulty = CurrentNode->GetTerrainDifficulty();
+			
+				// Distance to the neighbor from the current node
+				float DistanceToNeighbor = CurrentNode->GetHeuristicCost(NeighborLocation);
+				
+				float NeighborGValue = PreviousGValue + (DistanceToNeighbor * TerrainDifficulty);
+				
+				Neighbor->SetGValue(NeighborGValue);
+				Neighbor->SetFValue(Neighbor->GetHeuristicCost(GoalNodeLocation) + NeighborGValue);
+				
+			}
+			
+			// Algorithm stuff
+			{
+				
+				
+				
+				
+				
+			}
+			
+		}
+		
+		NodesToExplore.RemoveSingle(CurrentNode);
+		NodesExplored.Add(CurrentNode);
+		
+	}
+	
+	
 	
 	
 	

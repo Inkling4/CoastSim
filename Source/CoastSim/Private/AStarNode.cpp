@@ -20,6 +20,21 @@ AAStarNode::AAStarNode()
 	
 }
 
+float AAStarNode::GetTerrainDifficulty()
+{
+	return TerrainDifficulty;
+}
+
+float AAStarNode::GetGValue()
+{
+	return GValue;
+}
+
+void AAStarNode::SetGValue(float InGValue)
+{
+	GValue = InGValue;
+}
+
 void AAStarNode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -82,7 +97,7 @@ float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 
 }
 
-int AAStarNode::GetFValue()
+float AAStarNode::GetFValue()
 {
 	if (FValue == -1)
 	{
@@ -91,7 +106,7 @@ int AAStarNode::GetFValue()
 	return FValue;
 }
 
-void AAStarNode::SetFValue(int InFValue)
+void AAStarNode::SetFValue(float InFValue)
 {
 	FValue = InFValue;
 }

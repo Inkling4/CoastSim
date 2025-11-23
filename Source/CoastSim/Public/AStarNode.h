@@ -35,7 +35,7 @@ class COASTSIM_API AAStarNode : public AActor
 	
 protected:
 
-	int FValue = -1;
+	float FValue = -1;
 	
 	
 	FTimerHandle NeighborDetectionTimerHandle;
@@ -61,15 +61,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	bool bIsWalkable = true;
 	
+	float GValue = 0.f;
 	
+	// Decides how difficult it is to traverse this node, as a multiplier.
+    	// Default value is 1.
+    	UPROPERTY(EditAnywhere, BlueprintReadOnly, category = "AStar")
+    	float TerrainDifficulty = 1.f;
 	
 public:
 	AAStarNode();
+	
+	// Returns the total cost from start point to this node.
+	float GetGValue();
+	
+	void SetGValue(float InGValue);
 
-	// Decides how difficult it is to traverse this node, as a multiplier.
-	// Default value is 1.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, category = "AStar")
-	float TerrainDifficulty = 1.f;
+	// Returns the multiplier of terrain difficulty.
+	float GetTerrainDifficulty();
 	
 	// Returns the current state of this node.
 	ENodeState GetNodeState() const;
@@ -95,11 +103,11 @@ public:
 	// Returns the F value of this node. 
 	// F value is the sum of the heuristic cost, and the distance to this node from your start point.
 	UFUNCTION()
-	int GetFValue();
+	float GetFValue();
 	
 	// Sets the F value of this node.
 	UFUNCTION()
-	void SetFValue(int InFValue);
+	void SetFValue(float InFValue);
 	
 
 };

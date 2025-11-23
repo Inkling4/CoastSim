@@ -34,6 +34,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, category = "AStar")
 	TArray<AAStarNode*> NodesExplored;
 	
+	// Given a list of astarnodes, returns the one with the smallest f value.
+	UFUNCTION()
+	AAStarNode* GetBestNode(TArray<AAStarNode*> InAStarNodes);
 	
 	
 	// Changes direction for next node
