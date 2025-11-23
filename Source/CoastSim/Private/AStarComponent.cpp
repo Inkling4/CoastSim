@@ -169,12 +169,15 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 		return;
 	}
 	
-	// TESTING!!!! Unfinished
+	NodesToExplore.Empty(); // Empties the nodes to explore list.
+	NodesExplored.Empty(); // Empties the "explored" list.
 	GoalNode = AStarNode;
-	MovementQueue.push(GoalNode);
-	CurrentNode = GetCurrentNode();
-	NextNode = GoalNode;
-	bIsMoving = true;
+	
+	// The pathfinding starts here.
+	NodesToExplore.Add(StartNode);
+	
+	
+	
 	
 	
 }

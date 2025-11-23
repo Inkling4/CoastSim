@@ -35,6 +35,9 @@ class COASTSIM_API AAStarNode : public AActor
 	
 protected:
 
+	int FValue = -1;
+	
+	
 	FTimerHandle NeighborDetectionTimerHandle;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -89,6 +92,14 @@ public:
 	UFUNCTION(BlueprintCallable, category = "AStar")
 	float GetHeuristicCost(FVector2D InGoalLocation);
 
+	// Returns the F value of this node. 
+	// F value is the sum of the heuristic cost, and the distance to this node from your start point.
+	UFUNCTION()
+	int GetFValue();
+	
+	// Sets the F value of this node.
+	UFUNCTION()
+	void SetFValue(int InFValue);
 	
 
 };

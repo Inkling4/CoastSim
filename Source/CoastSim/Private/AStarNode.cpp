@@ -82,6 +82,20 @@ float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 
 }
 
+int AAStarNode::GetFValue()
+{
+	if (FValue == -1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Retreived F Value of -1!"));
+	}
+	return FValue;
+}
+
+void AAStarNode::SetFValue(int InFValue)
+{
+	FValue = InFValue;
+}
+
 TArray<AAStarNode*> AAStarNode::GetNeighbors()
 {
 	return Neighbors;

@@ -28,6 +28,14 @@ public:
 	
 protected:
 	
+	UPROPERTY(VisibleAnywhere, category = "AStar")
+	TArray<AAStarNode*> NodesToExplore;
+	
+	UPROPERTY(VisibleAnywhere, category = "AStar")
+	TArray<AAStarNode*> NodesExplored;
+	
+	
+	
 	// Changes direction for next node
 	void ChangeDirection();
 	
