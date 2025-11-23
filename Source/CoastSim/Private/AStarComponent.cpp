@@ -205,19 +205,23 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	
 	while (!NodesToExplore.IsEmpty())
 	{
+		CurrentNode = GetBestNode(NodesToExplore);
+		
 		for (auto Neighbor : CurrentNode->GetNeighbors())
 		{
 			FVector2D NeighborLocation {Neighbor->GetActorLocation().X, Neighbor->GetActorLocation().Y};
 			
 			if (Neighbor == GoalNode)
 			{
-				// You win! TODO
+				NodesExplored.Add(CurrentNode);
+				CurrentNode->ChangeColor(FColor::Red);
+				NodesExplored.Add(Neighbor);
+				Neighbor->ChangeColor(FColor::Red);
+				NodesToExplore.Empty();
 			}
-			
-			// Sets F Values on the neighbor nodes.
+			else
+					// Sets F Values on the neighbor nodes.
 			{
-				
-			
 				// The G Value of the current node (total cost from start node)
 				float PreviousGValue = CurrentNode->GetGValue();
 				// Multiplier for terrain difficulty.
@@ -231,21 +235,19 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 				Neighbor->SetGValue(NeighborGValue);
 				Neighbor->SetFValue(Neighbor->GetHeuristicCost(GoalNodeLocation) + NeighborGValue);
 				
+				// Adds node to the exploration list.
+				NodesToExplore.Add(Neighbor);
 			}
-			
-			// Algorithm stuff
-			{
-				
-				
-				
-				
-				
-			}
-			
 		}
 		
-		NodesToExplore.RemoveSingle(CurrentNode);
-		NodesExplored.Add(CurrentNode);
+	
+		if (!NodesToExplore.IsEmpty())
+		{
+			NodesToExplore.RemoveSingle(CurrentNode);
+			NodesExplored.Add(CurrentNode);
+			CurrentNode->ChangeColor(FColor::Red);
+		}
+		
 		
 	}
 	

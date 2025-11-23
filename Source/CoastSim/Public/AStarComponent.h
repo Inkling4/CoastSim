@@ -28,7 +28,7 @@ public:
 	
 protected:
 	
-	UPROPERTY(VisibleAnywhere, category = "AStar")
+	UPROPERTY()
 	TArray<AAStarNode*> NodesToExplore;
 	
 	UPROPERTY(VisibleAnywhere, category = "AStar")

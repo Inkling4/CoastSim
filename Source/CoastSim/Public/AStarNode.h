@@ -75,6 +75,11 @@ public:
 	float GetGValue();
 	
 	void SetGValue(float InGValue);
+	
+	// Changes the color of the Node's mesh.
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "AStar")
+	void ChangeColor(FColor InColor);
+	
 
 	// Returns the multiplier of terrain difficulty.
 	float GetTerrainDifficulty();
