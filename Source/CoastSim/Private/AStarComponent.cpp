@@ -73,6 +73,7 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	{
 		if (OwnerActor != nullptr && NextNode != nullptr)
 		{
+			
 			// Called to change the direction vector
 			ChangeDirection();
 			
@@ -92,12 +93,12 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 			float newDistance = NextNode->GetHeuristicCost(FVector2D {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y});
 			
 			// Checks if you have passed over the node
-			if (newDistance > oldDistance || newDistance <= 10.f)
+			if (newDistance > oldDistance || newDistance <= NodeDetectionRadius)
 			{
-				if (NextNode != GoalNode)
+				if (!MovementQueue.empty())
 				{
-					// TODO: Make it move according to the pathfinding
-					
+					NextNode = MovementQueue.front();
+					MovementQueue.pop();
 				}
 				else
 				{
@@ -136,7 +137,7 @@ AAStarNode* UAStarComponent::GetCurrentNode()
 			closestNode = AStarNode;
 			shortestDistance = DistanceToNode;
 			
-			if (DistanceToNode <= 10.f) // Stops early if it finds a "really" close one
+			if (DistanceToNode <= NodeDetectionRadius) // Stops early if it finds a "really" close one
 			{
 				return closestNode;
 			}
@@ -191,6 +192,14 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	}
 	
 	
+	bIsMoving = false;
+
+	for (auto Node : NodesExplored)
+	{
+		Node->ChangeColor("White");
+	}
+	
+	
 	
 	NodesToExplore.Empty(); // Empties the nodes to explore list.
 	NodesExplored.Empty(); // Empties the "explored" list.
@@ -199,9 +208,12 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	// The pathfinding starts here.
 	StartNode->SetFValue(0); // Sets f value to 0 as it's the starter node.
 	StartNode->SetGValue(0);
+	StartNode->PathFindingDepth = 0;
 	NodesToExplore.AddUnique(StartNode);
 	
 	FVector2D GoalNodeLocation {GoalNode->GetActorLocation().X, GoalNode->GetActorLocation().Y};
+	
+	
 	
 	while (!NodesToExplore.IsEmpty())
 	{
@@ -209,37 +221,44 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 		
 		for (auto Neighbor : CurrentNode->GetNeighbors())
 		{
-			if (!NodesToExplore.Contains(Neighbor))
+			if (!NodesToExplore.Contains(Neighbor) && !NodesExplored.Contains(Neighbor))
 			{
 				
 				FVector2D NeighborLocation {Neighbor->GetActorLocation().X, Neighbor->GetActorLocation().Y};
 				
-				if (Neighbor == GoalNode)
+				if (Neighbor->GetIsWalkable())
 				{
-					NodesExplored.AddUnique(CurrentNode);
-					NodesExplored.AddUnique(Neighbor);
-					NodesToExplore.Empty();
-					break;
-				}
-				else
+					if (Neighbor == GoalNode)
+					{
+						Neighbor->PathFindingDepth = CurrentNode->PathFindingDepth + 1;
+						NodesExplored.AddUnique(CurrentNode);
+						NodesExplored.AddUnique(Neighbor);
+						NodesToExplore.Empty();
+						break;
+					}
+					else
 						// Sets F Values on the neighbor nodes.
-				{
-					// The G Value of the current node (total cost from start node)
-					float PreviousGValue = CurrentNode->GetGValue();
-					// Multiplier for terrain difficulty.
-					float TerrainDifficulty = CurrentNode->GetTerrainDifficulty();
-				
-					// Distance to the neighbor from the current node
-					float DistanceToNeighbor = CurrentNode->GetHeuristicCost(NeighborLocation);
-					
-					float NeighborGValue = PreviousGValue + (DistanceToNeighbor * TerrainDifficulty);
-					
-					Neighbor->SetGValue(NeighborGValue);
-					Neighbor->SetFValue(Neighbor->GetHeuristicCost(GoalNodeLocation) + NeighborGValue);
-					
-					// Adds node to the exploration list.
-					NodesToExplore.AddUnique(Neighbor);
+					{
+						// The G Value of the current node (total cost from start node)
+						float PreviousGValue = CurrentNode->GetGValue();
+						// Multiplier for terrain difficulty.
+						float TerrainDifficulty = CurrentNode->GetTerrainDifficulty();
+                    				
+						// Distance to the neighbor from the current node
+						float DistanceToNeighbor = CurrentNode->GetHeuristicCost(NeighborLocation);
+                    					
+						float NeighborGValue = PreviousGValue + (DistanceToNeighbor * TerrainDifficulty);
+                    					
+						Neighbor->SetGValue(NeighborGValue);
+						Neighbor->SetFValue(Neighbor->GetHeuristicCost(GoalNodeLocation) + NeighborGValue);
+						Neighbor->PathFindingDepth = CurrentNode->PathFindingDepth + 1;
+                    					
+						// Adds node to the exploration list.
+						NodesToExplore.AddUnique(Neighbor);
+					}
 				}
+				
+				
 			}
 			
 		}
@@ -252,11 +271,42 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 		}
 	}
 
-	for (auto Node : NodesExplored)
+	// Empties queue
+	MovementQueue = std::queue<AAStarNode*>();
+	
 	{
-		Node->ChangeColor("Red");
+		for (int i = 0; i < GoalNode->PathFindingDepth; i++)
+		{
+			TObjectPtr<AAStarNode> bestNodeOfDepth;
+			TArray<AAStarNode*> NodesOfDepth;
+			
+			for (auto Node : NodesExplored)
+			{
+				if (Node->PathFindingDepth == i)
+				{
+					NodesOfDepth.AddUnique(Node);
+				}
+			}
+
+			bestNodeOfDepth = GetBestNode(NodesOfDepth);
+			MovementQueue.push(bestNodeOfDepth);
+			bestNodeOfDepth->ChangeColor("Red");
+		}
+		
+		/*
+		for (auto Node : NodesExplored)
+        	{
+        		MovementQueue.push(Node);
+        		Node->ChangeColor("Red");
+        	}
+		*/
 	}
 	
+	
+	// Starts movement
+	NextNode = StartNode;
+	PreviousNode = nullptr;
+	bIsMoving = true;
 	
 }
 

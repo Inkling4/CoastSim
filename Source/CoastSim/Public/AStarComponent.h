@@ -28,6 +28,13 @@ public:
 	
 protected:
 	
+	// For movement
+	UPROPERTY()
+	TObjectPtr<AAStarNode> PreviousNode;
+	
+	UPROPERTY(EditAnywhere, category = "AStar")
+	float NodeDetectionRadius = 10.f;
+	
 	UPROPERTY()
 	TArray<AAStarNode*> NodesToExplore;
 	
@@ -75,7 +82,7 @@ protected:
 	AAStarNode* GetCurrentNode();
 	
 	// Priority queue for movement. Uses standard C++ library
-	std::priority_queue<AAStarNode*> MovementQueue;
+	std::queue<AAStarNode*> MovementQueue;
 	
 	// Moves owner actor to AStarNode
 	UFUNCTION()

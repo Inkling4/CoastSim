@@ -71,6 +71,9 @@ protected:
 public:
 	AAStarNode();
 	
+	UPROPERTY(VisibleAnywhere, category = "AStar")
+	int PathFindingDepth;
+	
 	// Returns the total cost from start point to this node.
 	float GetGValue();
 	
