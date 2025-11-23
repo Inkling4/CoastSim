@@ -101,7 +101,7 @@ FVector UNewBuoyancyComponent::GetMultiBuoyancyLocation(TArray<FVector> Pontoons
 }
 
 
-
+// Find OceanWaterZone in the scene, save it, and return the FFTCalculator
 FOceanFFTCalculator* UNewBuoyancyComponent::InitializeWaterZoneReference()
 {
 	TArray<AActor*> FoundActors;
@@ -123,6 +123,8 @@ FOceanFFTCalculator* UNewBuoyancyComponent::InitializeWaterZoneReference()
 	return nullptr;
 }
 
+
+// Find avarage world location on all points in input array
 FVector UNewBuoyancyComponent::FindAverageLocation(TArray<FVector> Locations)
 {
 	FVector AverageLocation = FVector::ZeroVector;
@@ -134,6 +136,8 @@ FVector UNewBuoyancyComponent::FindAverageLocation(TArray<FVector> Locations)
 	return AverageLocation;
 }
 
+
+// 
 TArray<FVector> UNewBuoyancyComponent::GetBuoyancyArray(TArray<FVector> Points)
 {
 	TArray<FVector> PointArray = {};
