@@ -214,9 +214,9 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 			if (Neighbor == GoalNode)
 			{
 				NodesExplored.Add(CurrentNode);
-				CurrentNode->ChangeColor(FColor::Red);
+				CurrentNode->ChangeColor("Red");
 				NodesExplored.Add(Neighbor);
-				Neighbor->ChangeColor(FColor::Red);
+				Neighbor->ChangeColor("Red");
 				NodesToExplore.Empty();
 			}
 			else
@@ -245,7 +245,7 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 		{
 			NodesToExplore.RemoveSingle(CurrentNode);
 			NodesExplored.Add(CurrentNode);
-			CurrentNode->ChangeColor(FColor::Red);
+			CurrentNode->ChangeColor("Red");
 		}
 		
 		

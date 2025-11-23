@@ -78,7 +78,7 @@ public:
 	
 	// Changes the color of the Node's mesh.
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "AStar")
-	void ChangeColor(FColor InColor);
+	void ChangeColor(FName InColor);
 	
 
 	// Returns the multiplier of terrain difficulty.
