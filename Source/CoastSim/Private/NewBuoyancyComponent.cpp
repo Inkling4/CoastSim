@@ -28,6 +28,9 @@ void UNewBuoyancyComponent::BeginPlay()
 	}
 	ParentActor->SetActorLocation(FVector(WorldActorLocation.X, WorldActorLocation.Y, 0));
 	FFTCalculator = InitializeWaterZoneReference();
+
+
+	prevTarget = FRotator::ZeroRotator;
 }
 
 // Called every frame
@@ -37,30 +40,50 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (bWaterZoneValid)
 	{
+		// Set parent z-location to 0
 		if (ActorTransform.GetLocation() != ParentActor->GetActorLocation())
 		{
 			ActorTransform = ParentActor->GetActorTransform();
 			WorldActorLocation = ParentActor->GetActorLocation();
 			WorldActorRotation = ParentActor->GetActorRotation();
+			
 			ParentActor->SetActorLocation(FVector(WorldActorLocation.X, WorldActorLocation.Y, 0));
 		}
 
-		if (PontoonsLocations.Num() > 2)
+		
+		if (PontoonsLocations.Num() > 2) // If you have set any pontoon locations
 		{
-			const TArray<FVector> BuoyancyArray = GetBuoyancyArray(PontoonsLocations);
+			BuoyancyArray.Empty();
+			BuoyancyArray = GetBuoyancyArray(PontoonsLocations);
 			const FQuat ActorQuat = CalculateBuoyancyRotation(BuoyancyArray);
 			const FVector BuoyancyLocation = GetMultiBuoyancyLocation(PontoonsLocations);
-			const FRotator BuoyancyRotation = ActorQuat.Rotator() * RotationStrength + WorldActorRotation;
+			const FRotator BuoyancyRotation = FRotator(ActorQuat.Rotator()) + WorldActorRotation; //*RotationStrength
+			//const FRotator BuoyancyRotation = FRotator(ActorQuat.Rotator().Pitch, ActorQuat.Rotator().Yaw, 0) * RotationStrength + WorldActorRotation;
 
+			
+
+			//const FRotator BuoyancyRotation = FRotator(FMath::Lerp(1, 1, 1), 0, 0);
+
+			//prevTarget = TargetBuoyancyRotation;
+			
+			/*
+			// Debugging
+			FString debugMsg = FString::Printf(TEXT("Yaw: %f, Pitch: %f"), float(ActorQuat.Rotator().Yaw), float(ActorQuat.Rotator().Pitch));
+			UE_LOG(LogTemp, Warning, TEXT("Yaw: %f"), float(ActorQuat.Rotator().Yaw));
+			UE_LOG(LogTemp, Warning, TEXT("Pitch: %f"), float(ActorQuat.Rotator().Pitch));
+			//*/
+
+			// Place and rotate the staticMesh object
 			if (MyStaticMeshComponent->IsValidLowLevelFast())
 			{
 				MyStaticMeshComponent->SetWorldLocation(BuoyancyLocation);
 				MyStaticMeshComponent->SetWorldRotation(BuoyancyRotation);
 			}
 
+			// Debug
 			if (DebugPoints) { DrawBuoyancyArrayDebugPoints(BuoyancyArray); }
 		}
-		else
+		else // Set location to the one pontoon you have (default is having one FVector::ZeroVector)
 		{
 			if (MyStaticMeshComponent->IsValidLowLevelFast())
 			{
@@ -72,25 +95,32 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 }
 
 
-// ?Finds the location of the pontoon points that is dislocated by the FFT water shading
+// ?Finds the location of the pontoon points that is dislocated by the FFT water shading computing
 FVector UNewBuoyancyComponent::GetBuoyancyLocation(FVector RelativeLocation)
 {
+	// Safe measure
 	FVector BuoyancyLocation = FVector::ZeroVector;
+
+	//TODO: Figure out what transformPosition does
 	FVector WorldLocation = ActorTransform.TransformPosition(RelativeLocation);
 	if (FFTCalculator == nullptr) { return BuoyancyLocation; }
 	else {
-
+		
 		FVector GridPointLocation = FVector(WorldLocation.X, WorldLocation.Y, -RelativeLocation.Z) / FFTCalculator->scale * FFTCalculator->multiplyScale;
 		FVector Displacement = FFTCalculator->GetDisplacementAtPoint(GridPointLocation);
 
-		BuoyancyLocation = GridPointLocation * FFTCalculator->scale / FFTCalculator->multiplyScale + Displacement / FFTCalculator->scale / FFTCalculator->overlapScale;
+		// Add location and displacement while factoring in the scale that we set to the ocean shader
+		BuoyancyLocation = GridPointLocation
+								* FFTCalculator->scale / FFTCalculator->multiplyScale
+							+ Displacement
+								/ FFTCalculator->scale / FFTCalculator->overlapScale;
 
 		return BuoyancyLocation;
 	}
 }
 
 
-// ?Get the avarage location of all pontoons to determine the bouyant location
+// ?Get the avarage location of all pontoons to determine the buoyant location
 FVector UNewBuoyancyComponent::GetMultiBuoyancyLocation(TArray<FVector> PontoonsArray)
 {
 	FVector BuoyancyLocation = FVector::ZeroVector;
@@ -137,13 +167,13 @@ FVector UNewBuoyancyComponent::FindAverageLocation(TArray<FVector> Locations)
 }
 
 
-// 
+// Get buoyancy points in an array
 TArray<FVector> UNewBuoyancyComponent::GetBuoyancyArray(TArray<FVector> Points)
 {
 	TArray<FVector> PointArray = {};
-	for (FVector& Point : Points)
+	for (size_t i = 0; i < Points.Num(); i++)
 	{
-		PointArray.Add(GetBuoyancyLocation(Point));
+		PointArray.Add(GetBuoyancyLocation(Points[i]));
 	}
 	return PointArray;
 }
@@ -154,6 +184,7 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 {
 	FQuat AverageRotation = FQuat::Identity;
 
+	/*
 	for (const FVector& WavePoint : Points)
 	{
 		float DistanceToCenter = FVector::Dist(ParentActor->GetActorLocation(), WavePoint);
@@ -164,7 +195,87 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 		// Accumulate the weighted rotation
 		AverageRotation = FQuat::Slerp(AverageRotation, WaveRotation, Weight);
 	}
-	return AverageRotation;
+	//*/
+
+	//TODO: Make the points be weights that drag the boat up and down
+	/*
+	FVector AvarageVector = FVector(-10000, 0, 0);//FVector::ZeroVector;
+
+	for (const FVector& WavePoint : Points)
+	{
+		AvarageVector += WavePoint;
+	}
+
+	//AvarageVector /= Points.Num();
+
+	// Should turn the whole function into a rotator
+	AverageRotation = FQuat(AvarageVector.Rotation());
+	//*/
+
+	FRotator currentRotation = MyStaticMeshComponent->GetComponentRotation();
+	TArray<FVector> boatPoints;
+	float pitchRotation = 0;
+	int pitchIncrements = 0;
+	float rollRotation = 0;
+	int rollIncrements = 0;
+
+	// Offset, rotate and add pontoon positions into a new array (foreach loop sometimes doesn't get points in order)
+	for (size_t i = 0; i < PontoonsLocations.Num(); i++)
+	{
+		//boatPoints.Add(currentRotation.RotateVector(PontoonsLocations[i] + MyStaticMeshComponent->GetComponentLocation()));
+		FVector boatPoint = currentRotation.RotateVector(PontoonsLocations[i] + MyStaticMeshComponent->GetComponentLocation());
+
+		// Get z offset between the boat point and the equivalent wave point
+		float zOffset = 0;
+		if (BuoyancyArray.IsValidIndex(i))
+			zOffset = (boatPoint - BuoyancyArray[i]).Z / 1;
+
+
+		if (PontoonsLocations[i].Y == 0 && PontoonsLocations[i].X != 0) // Pitch
+		{
+			float a = -zOffset * RotationStrength; //FMath::Pow(zOffset, 1)
+			float b = 1/(PontoonsLocations[i].X);
+
+			pitchRotation += a * b;
+			pitchIncrements++;
+		}
+		else if (PontoonsLocations[i].Y != 0) // Roll
+		{
+			float a = zOffset * RotationStrength; //FMath::Pow(zOffset, 1)
+			float b = 1 / (PontoonsLocations[i].Y);
+
+			rollRotation += a * b;
+			rollIncrements++;
+		}
+	}
+	// Debug
+	//DrawBuoyancyArrayDebugPoints(boatPoints);
+
+	if (rollIncrements)
+	{
+		rollRotation *= 40 / rollIncrements;
+		UE_LOG(LogTemp, Warning, TEXT("Roll: %f"), rollRotation);
+
+		rollRotation = FMath::Lerp(currentRotation.Roll, rollRotation, .5f);
+		rollRotation = FMath::Clamp(rollRotation, -20, 20);
+	}
+	
+	if (pitchIncrements)
+	{
+		pitchRotation *= 40 / pitchIncrements;
+		UE_LOG(LogTemp, Warning, TEXT("Pitch: %f"), pitchRotation);
+
+		pitchRotation = FMath::Lerp(currentRotation.Pitch, pitchRotation, .7f); //5/pitchRotation
+		pitchRotation = FMath::Clamp(pitchRotation, -20, 20);
+
+	}
+	
+	FRotator rotation = FRotator(pitchRotation, 0, rollRotation);
+
+
+
+	//return AverageRotation;
+	return FQuat(rotation);
 }
 
 
@@ -179,10 +290,12 @@ FQuat UNewBuoyancyComponent::CalculateWaveRotation(const FVector& WavePoint)
 }
 
 
+
+//TODO: DrawArrayDebugPoints
 // Draw translated pontoon placements to the scene
-void UNewBuoyancyComponent::DrawBuoyancyArrayDebugPoints(const TArray<FVector>& BuoyancyArray)
+void UNewBuoyancyComponent::DrawBuoyancyArrayDebugPoints(const TArray<FVector>& array)
 {
-	for (const FVector& Point : BuoyancyArray)
+	for (const FVector& Point : array)
 	{
 		DrawDebugPoint(GetWorld(), Point, 50.f, FColor(255.f, 0.f, 0.f, 255.f), false, 0.f, 0);
 	}

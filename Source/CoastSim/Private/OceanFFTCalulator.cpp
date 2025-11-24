@@ -306,6 +306,7 @@ void FOceanFFTCalculator::ShowDebugDisplacementPoints(UWorld* World, const FVect
     }
 }
 
+// Get the position of a point displaced by one level of the waves
 FVector FOceanFFTCalculator::GetCascadeValue(FVector PointLocation, int32 CascadeIndex)
 {
     float U = FMath::Frac(PointLocation.X / OceanData.PatchLength[CascadeIndex] / CentimetersPerMeter);
@@ -328,6 +329,7 @@ FVector FOceanFFTCalculator::GetCascadeValue(FVector PointLocation, int32 Cascad
     );
 }
 
+// Get the displacement for all levels/types of waves at one point
 FVector FOceanFFTCalculator::GetDisplacementAtPoint(FVector PointLocation)
 {
     FVector Displacement = GetCascadeValue(PointLocation, 0);

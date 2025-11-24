@@ -49,7 +49,11 @@ private:
 	FVector FindAverageLocation(TArray<FVector> Locations);
 	FQuat CalculateBuoyancyRotation(const TArray<FVector> Points);
 	FQuat CalculateWaveRotation(const FVector& WavePoint);
-	void DrawBuoyancyArrayDebugPoints(const TArray<FVector>& BuoyancyArray);
+	void DrawBuoyancyArrayDebugPoints(const TArray<FVector>& array);
+
+	FRotator prevTarget;
+	TArray<FVector> BuoyancyArray = { FVector::ZeroVector };
+	float BoatPointOffsetValue(FVector point);
 
 protected:
 	// Called when the game starts
