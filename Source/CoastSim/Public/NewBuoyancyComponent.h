@@ -33,6 +33,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Buoyancy")
 	TArray<FVector> GetBuoyancyArray(TArray<FVector> Points);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) int YPoints = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) int XPoints = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float ObjectLengthY = 1000;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) float ObjectLengthX = 300;
 
 private:
 	AActor* ParentActor = nullptr;

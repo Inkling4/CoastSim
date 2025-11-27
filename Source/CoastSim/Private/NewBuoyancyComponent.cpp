@@ -30,7 +30,24 @@ void UNewBuoyancyComponent::BeginPlay()
 	FFTCalculator = InitializeWaterZoneReference();
 
 
-	prevTarget = FRotator::ZeroRotator;
+	//prevTarget = FRotator::ZeroRotator;
+
+	// Add PontoonLocations based on length of object and number of wanted points
+	for (size_t i = 0; i < YPoints; i++)
+	{
+		for (size_t j = 0; j < XPoints; j++)
+		{
+			float yDistanceBetweenPoints = ObjectLengthY / YPoints;
+			float yPos = i * yDistanceBetweenPoints - float(YPoints-1)/2 * yDistanceBetweenPoints;
+
+			float xDistanceBetweenPoints = ObjectLengthX / XPoints;
+			float xPos = j * xDistanceBetweenPoints - float(XPoints - 1) / 2 * xDistanceBetweenPoints;
+
+			PontoonsLocations.Add(FVector(yPos, xPos, 0));
+
+			UE_LOG(LogTemp, Warning, TEXT("Created PontoonPoint"));
+		}
+	}
 }
 
 // Called every frame
@@ -249,7 +266,7 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 		}
 	}
 	// Debug
-	//DrawBuoyancyArrayDebugPoints(boatPoints);
+	DrawBuoyancyArrayDebugPoints(boatPoints);
 
 	if (rollIncrements)
 	{
