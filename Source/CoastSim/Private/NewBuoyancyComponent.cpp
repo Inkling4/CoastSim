@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "NewBuoyancyComponent.h"
 
@@ -18,6 +16,8 @@ UNewBuoyancyComponent::UNewBuoyancyComponent()
 void UNewBuoyancyComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Initialize variables
 	ActorTransform = ParentActor->GetActorTransform();
 	WorldActorLocation = ParentActor->GetActorLocation();
 	WorldActorRotation = ParentActor->GetActorRotation();
@@ -30,9 +30,13 @@ void UNewBuoyancyComponent::BeginPlay()
 	FFTCalculator = InitializeWaterZoneReference();
 
 
-	//prevTarget = FRotator::ZeroRotator;
+
+	// Don't run code unless there is a sufficient number of points
+	if (XPoints < 1 || YPoints < 1)
+		return;
 
 	// Add PontoonLocations based on length of object and number of wanted points
+	PontoonsLocations.Empty();
 	for (size_t i = 0; i < YPoints; i++)
 	{
 		for (size_t j = 0; j < XPoints; j++)
@@ -48,6 +52,15 @@ void UNewBuoyancyComponent::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("Created PontoonPoint"));
 		}
 	}
+
+	// Cuts of corners to the point-grid for more rounded objects
+	if (CutCorners && XPoints > 2 && YPoints > 2)
+	{
+		PontoonsLocations.RemoveAt(PontoonsLocations.Num() - 1);
+		PontoonsLocations.RemoveAt(PontoonsLocations.Num() - (XPoints-1));
+		PontoonsLocations.RemoveAt(XPoints-1);
+		PontoonsLocations.RemoveAt(0);
+	}
 }
 
 // Called every frame
@@ -55,7 +68,7 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bWaterZoneValid)
+	if (bWaterZoneValid && MyStaticMeshComponent)
 	{
 		// Set parent z-location to 0
 		if (ActorTransform.GetLocation() != ParentActor->GetActorLocation())
@@ -76,13 +89,7 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			const FVector BuoyancyLocation = GetMultiBuoyancyLocation(PontoonsLocations);
 			const FRotator BuoyancyRotation = FRotator(ActorQuat.Rotator()) + WorldActorRotation; //*RotationStrength
 			//const FRotator BuoyancyRotation = FRotator(ActorQuat.Rotator().Pitch, ActorQuat.Rotator().Yaw, 0) * RotationStrength + WorldActorRotation;
-
-			
-
-			//const FRotator BuoyancyRotation = FRotator(FMath::Lerp(1, 1, 1), 0, 0);
-
-			//prevTarget = TargetBuoyancyRotation;
-			
+						
 			/*
 			// Debugging
 			FString debugMsg = FString::Printf(TEXT("Yaw: %f, Pitch: %f"), float(ActorQuat.Rotator().Yaw), float(ActorQuat.Rotator().Pitch));
@@ -108,6 +115,10 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 				MyStaticMeshComponent->SetWorldLocation(BuoyancyLocation);
 			}
 		}
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Error, TEXT("MISSING CRUCIAL COMPONENTS (StaticMesh or OceanWaterZone)! BUOYANCY SCRIPT WILL NOT RUN!"));
 	}
 }
 
@@ -212,10 +223,7 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 		// Accumulate the weighted rotation
 		AverageRotation = FQuat::Slerp(AverageRotation, WaveRotation, Weight);
 	}
-	//*/
 
-	//TODO: Make the points be weights that drag the boat up and down
-	/*
 	FVector AvarageVector = FVector(-10000, 0, 0);//FVector::ZeroVector;
 
 	for (const FVector& WavePoint : Points)
@@ -227,7 +235,7 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 
 	// Should turn the whole function into a rotator
 	AverageRotation = FQuat(AvarageVector.Rotation());
-	//*/
+	*/
 
 	FRotator currentRotation = MyStaticMeshComponent->GetComponentRotation();
 	TArray<FVector> boatPoints;
@@ -239,26 +247,27 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 	// Offset, rotate and add pontoon positions into a new array (foreach loop sometimes doesn't get points in order)
 	for (size_t i = 0; i < PontoonsLocations.Num(); i++)
 	{
-		//boatPoints.Add(currentRotation.RotateVector(PontoonsLocations[i] + MyStaticMeshComponent->GetComponentLocation()));
-		FVector boatPoint = currentRotation.RotateVector(PontoonsLocations[i] + MyStaticMeshComponent->GetComponentLocation());
+		// Find the world position of the pontoon point based on the StaticMesh position
+		FVector staticMeshPoint = currentRotation.RotateVector(PontoonsLocations[i] + MyStaticMeshComponent->GetComponentLocation());
 
 		// Get z offset between the boat point and the equivalent wave point
 		float zOffset = 0;
 		if (BuoyancyArray.IsValidIndex(i))
-			zOffset = (boatPoint - BuoyancyArray[i]).Z / 1;
+			zOffset = (staticMeshPoint - BuoyancyArray[i]).Z / 1;
 
-
+		// If the point is on the y-axis of the object calculate pitch
 		if (PontoonsLocations[i].Y == 0 && PontoonsLocations[i].X != 0) // Pitch
 		{
-			float a = -zOffset * RotationStrength; //FMath::Pow(zOffset, 1)
+			float a = -zOffset * RotationStrength;
 			float b = 1/(PontoonsLocations[i].X);
 
 			pitchRotation += a * b;
 			pitchIncrements++;
 		}
+		// If the point is in any other position
 		else if (PontoonsLocations[i].Y != 0) // Roll
 		{
-			float a = zOffset * RotationStrength; //FMath::Pow(zOffset, 1)
+			float a = zOffset * RotationStrength;
 			float b = 1 / (PontoonsLocations[i].Y);
 
 			rollRotation += a * b;
@@ -268,10 +277,11 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 	// Debug
 	DrawBuoyancyArrayDebugPoints(boatPoints);
 
+	
 	if (rollIncrements)
 	{
 		rollRotation *= 40 / rollIncrements;
-		UE_LOG(LogTemp, Warning, TEXT("Roll: %f"), rollRotation);
+		//UE_LOG(LogTemp, Warning, TEXT("Roll: %f"), rollRotation);
 
 		rollRotation = FMath::Lerp(currentRotation.Roll, rollRotation, .5f);
 		rollRotation = FMath::Clamp(rollRotation, -20, 20);
@@ -280,23 +290,22 @@ FQuat UNewBuoyancyComponent::CalculateBuoyancyRotation(const TArray<FVector> Poi
 	if (pitchIncrements)
 	{
 		pitchRotation *= 40 / pitchIncrements;
-		UE_LOG(LogTemp, Warning, TEXT("Pitch: %f"), pitchRotation);
+		//UE_LOG(LogTemp, Warning, TEXT("Pitch: %f"), pitchRotation);
 
-		pitchRotation = FMath::Lerp(currentRotation.Pitch, pitchRotation, .7f); //5/pitchRotation
+		pitchRotation = FMath::Lerp(currentRotation.Pitch, pitchRotation, .7f);
 		pitchRotation = FMath::Clamp(pitchRotation, -20, 20);
 
 	}
 	
 	FRotator rotation = FRotator(pitchRotation, 0, rollRotation);
 
-
-
-	//return AverageRotation;
+	//TODO: Can change this to rotator
 	return FQuat(rotation);
 }
 
 
 // Calculates the angle from the parent actor location (blueprint root) to the WavePoint relative to the z-axis
+// NOT IN USE!
 FQuat UNewBuoyancyComponent::CalculateWaveRotation(const FVector& WavePoint)
 {
 	FVector TargetVector(0.0f, 0.0f, 1.0f); // z-axis

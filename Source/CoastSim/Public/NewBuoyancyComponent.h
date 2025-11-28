@@ -20,7 +20,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Data")
 	TArray<FVector> PontoonsLocations = { FVector::ZeroVector };
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Data")
-	float RotationStrength = 5;
+	float RotationStrength = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Data")
 	bool DebugPoints = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buoyancy Data")
@@ -33,10 +33,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Buoyancy")
 	TArray<FVector> GetBuoyancyArray(TArray<FVector> Points);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) int YPoints = 3;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) int XPoints = 3;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float ObjectLengthY = 1000;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) float ObjectLengthX = 300;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") int YPoints = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") int XPoints = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") float ObjectLengthY = 1800;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") float ObjectLengthX = 600;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") bool CutCorners = true;
 
 private:
 	AActor* ParentActor = nullptr;
