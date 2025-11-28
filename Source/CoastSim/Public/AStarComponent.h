@@ -8,11 +8,11 @@
 
 /*
  * This component will be used to store variables and functions for finding a path using A*.
- * TODO: Add a TGraph to store points for movement
+ * 
  *
  */
 
-
+class AStarNode;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COASTSIM_API UAStarComponent : public UActorComponent
@@ -30,6 +30,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	// Call this function to move the actor to the node specified, using pathfinding.
+	void PathFindTo(TObjectPtr<AStarNode> AStarNode);
 
 		
 };
