@@ -20,6 +20,7 @@ struct FSpatialHashGrid
 
 private:
 	
+	// <Location key, Array of boids>
 	TMap<FIntVector, TArray<int32>> Cells;
 
 public:
@@ -43,5 +44,9 @@ public:
 	void GetNeighbourBoids(const FVector& Position, TArray<int32>& OutIndices) const;
 
 	void DrawGrid(UWorld* World, const FColor& Color = FColor::Green, float Duration = 0.0f) const;
+
+	bool CheckIfCellIsEmpty(FIntVector& Cell);
+
+	void DeleteCell(FIntVector& Cell);
 
 };

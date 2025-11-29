@@ -68,7 +68,7 @@ void ACPP_FlockManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ACPP_FlockManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("DeltaTime: %f"), DeltaTime);
+	//UE_LOG(LogTemp, Warning, TEXT("DeltaTime: %f"), DeltaTime);
 
 	BoidUpdateAccumulator += DeltaTime;
 
@@ -81,7 +81,7 @@ void ACPP_FlockManager::Tick(float DeltaTime)
 
 	float Alpha = BoidUpdateAccumulator / BoidUpdateInterval;
 
-	//Calculate all the new transforms between each UpdateBodid locations
+	//Calculate all the new transforms between each UpdateBoid locations
 	TArray<FTransform> NewTransforms;
 	NewTransforms.SetNum(Boids.Num());
 	ParallelFor(Boids.Num(), [this, Alpha,&NewTransforms](int32 i)	
@@ -148,6 +148,9 @@ void ACPP_FlockManager::UpdateBoids(float DeltaTime)
 		{
 			SpatialHashGrid.RemoveBoid(i, OldCell);
 			SpatialHashGrid.InsertBoid(i, NewCell);
+
+			if (SpatialHashGrid.CheckIfCellIsEmpty(OldCell)) 
+				SpatialHashGrid.DeleteCell(OldCell);
 		}
 		Boid.OldCellLocation = NewCell;
 	}
@@ -204,6 +207,7 @@ void ACPP_FlockManager::UpdateBoids(float DeltaTime)
 		FQuat DesiredRotation = FQuat(Boid.Velocity.Rotation());
 		Boid.TargetRotation = FQuat::Slerp(Boid.TargetRotation, DesiredRotation, 0.2f);
 
+		// Multithreading array
 		BoidsBuffer[i] = Boid;
 	});
 
@@ -237,9 +241,10 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 			CohesionSum += NeighborBoid.Position;
 			CohesionCount++;
 		}
+		// Maybe ignore close birds?
 		if (DistSq < FMath::Square(SeparationThreshold) && DistSq > 0)
 		{
-			SeparationSum += (Boid.Position - NeighborBoid.Position) / FMath::Sqrt(DistSq);
+			SeparationSum += (Boid.Position - NeighborBoid.Position) / DistSq; //FMath::Sqrt(DistSq);
 			SeparationCount++;
 		}
 	}
@@ -251,6 +256,7 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 		Boid.Acceleration += SteerTowards(SeparationSum / SeparationCount, Boid) * SeparationFactor;
 	if (TargetPoint)
 		Boid.Acceleration += SteerTowards(MoveTowards(Boid),Boid) * MoveToTargetFactor;
+
 }
 
 bool ACPP_FlockManager::IsHeadingForCollision(const FBoid& Boid) const
