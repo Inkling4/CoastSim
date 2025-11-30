@@ -5,6 +5,7 @@
 #include "AStarNode.h"
 #include "Kismet/GameplayStatics.h"
 //#include "Kismet/KismetMathLibrary.h"
+#include "UObject/UObjectGlobals.h"
 #include "AStarGlobals.h"
 
 // Sets default values for this component's properties
@@ -217,9 +218,9 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	
 	while (!NodesToExplore.IsEmpty())
 	{
-		TObjectPtr<AAStarNode> CurrentNode = GetBestNode(NodesToExplore);
+		TObjectPtr<AAStarNode> ThisNode = GetBestNode(NodesToExplore);
 		
-		for (auto Neighbor : CurrentNode->GetNeighbors())
+		for (auto Neighbor : ThisNode->GetNeighbors())
 		{
 			if (!NodesToExplore.Contains(Neighbor) && !NodesExplored.Contains(Neighbor))
 			{
@@ -230,8 +231,8 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 				{
 					if (Neighbor == GoalNode)
 					{
-						Neighbor->PathFindingDepth = CurrentNode->PathFindingDepth + 1;
-						NodesExplored.AddUnique(CurrentNode);
+						Neighbor->PathFindingDepth = ThisNode->PathFindingDepth + 1;
+						NodesExplored.AddUnique(ThisNode);
 						NodesExplored.AddUnique(Neighbor);
 						NodesToExplore.Empty();
 						break;
