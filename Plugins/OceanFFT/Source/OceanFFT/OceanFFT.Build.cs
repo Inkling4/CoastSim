@@ -28,8 +28,7 @@ public class OceanFFT : ModuleRules
                 "RenderCore",  // Add this for shader support
                 "RHI",         // Add this for shader support
                 "Projects",    // Add this for shader directory mapping
-                "Niagara",
-                "NiagaraCore"
+                // ... add other public dependencies that you statically link with here ...
             }
         );
         
