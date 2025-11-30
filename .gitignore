@@ -80,3 +80,4 @@ DerivedDataCache/*
 .vscode/
 Makefile
 /Content/Levels/_GENERATED
+CoastSim.sln.DotSettings.user
