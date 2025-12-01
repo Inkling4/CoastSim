@@ -179,6 +179,7 @@ AAStarNode* UAStarComponent::GetBestNode(TArray<AAStarNode*> InAStarNodes)
 
 void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 {
+	bIsMoving = false;
 	if (AStarNode == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AStarNode goal in pathfinding is null."));
@@ -193,7 +194,7 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	}
 	
 	
-	bIsMoving = false;
+	
 
 	for (auto Node : NodesExplored)
 	{
@@ -241,18 +242,18 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 						// Sets F Values on the neighbor nodes.
 					{
 						// The G Value of the current node (total cost from start node)
-						float PreviousGValue = CurrentNode->GetGValue();
+						float PreviousGValue = ThisNode->GetGValue();
 						// Multiplier for terrain difficulty.
-						float TerrainDifficulty = CurrentNode->GetTerrainDifficulty();
+						float TerrainDifficulty = ThisNode->GetTerrainDifficulty();
                     				
 						// Distance to the neighbor from the current node
-						float DistanceToNeighbor = CurrentNode->GetHeuristicCost(NeighborLocation);
+						float DistanceToNeighbor = ThisNode->GetHeuristicCost(NeighborLocation);
                     					
 						float NeighborGValue = PreviousGValue + (DistanceToNeighbor * TerrainDifficulty);
                     					
 						Neighbor->SetGValue(NeighborGValue);
 						Neighbor->SetFValue(Neighbor->GetHeuristicCost(GoalNodeLocation) + NeighborGValue);
-						Neighbor->PathFindingDepth = CurrentNode->PathFindingDepth + 1;
+						Neighbor->PathFindingDepth = ThisNode->PathFindingDepth + 1;
                     					
 						// Adds node to the exploration list.
 						NodesToExplore.AddUnique(Neighbor);
@@ -267,8 +268,8 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	
 		if (!NodesToExplore.IsEmpty())
 		{
-			NodesToExplore.RemoveSingle(CurrentNode);
-			NodesExplored.AddUnique(CurrentNode);
+			NodesToExplore.RemoveSingle(ThisNode);
+			NodesExplored.AddUnique(ThisNode);
 		}
 	}
 
