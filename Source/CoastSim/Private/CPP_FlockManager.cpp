@@ -7,7 +7,6 @@
 #include "HAL/PlatformTime.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "CPP_BoidHelper.h"
-#include "SWarningOrErrorBox.h"
 #include "Async/ParallelFor.h"
 
 // Sets default values
