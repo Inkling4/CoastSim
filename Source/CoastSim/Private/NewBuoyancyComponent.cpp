@@ -89,7 +89,7 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			WorldActorLocation = ParentActor->GetActorLocation();
 			WorldActorRotation = ParentActor->GetActorRotation();
 			
-			ParentActor->SetActorLocation(FVector(WorldActorLocation.X, WorldActorLocation.Y, 0));
+			//ParentActor->SetActorLocation(FVector(WorldActorLocation.X, WorldActorLocation.Y, 0));
 		}
 
 		
@@ -112,11 +112,13 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			// Place and rotate the staticMesh object
 			if (MyStaticMeshComponent->IsValidLowLevelFast())
 			{
-				MyStaticMeshComponent->SetWorldLocation(BuoyancyLocation);
-	 
+				//MyStaticMeshComponent->SetWorldLocation(BuoyancyLocation);
 				FRotator ActorRotator = ActorQuat.Rotator();
 				float PitchFromBuoyancy = ActorRotator.Pitch;
 				float RollFromBuoyancy = ActorRotator.Roll;
+
+				FVector RelativeBuoyancyLocation = ActorTransform.InverseTransformPosition(BuoyancyLocation);
+				MyStaticMeshComponent->SetRelativeLocation(RelativeBuoyancyLocation);
 	 
 				FRotator BuoyancyRelativeRotation = FRotator(PitchFromBuoyancy, 0.f, RollFromBuoyancy);
 				MyStaticMeshComponent->SetRelativeRotation(BuoyancyRelativeRotation);
