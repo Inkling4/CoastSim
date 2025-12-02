@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "OceanFFTData.h"
+#include "OceanFFTCalculator.ispc.generated.h"
+
 
 class UNiagaraSystem;
 

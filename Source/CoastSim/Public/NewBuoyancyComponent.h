@@ -40,9 +40,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") float ObjectLengthX = 600;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") bool CutCorners = true;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PontoonPoints") float OffsetZ = -100;
+	
+
 private:
+	UPROPERTY()
 	AActor* ParentActor = nullptr;
+
+	UPROPERTY()
 	AOceanWaterZone* OceanWaterZone;
+
+	
 	FTransform ActorTransform;
 	FVector WorldActorLocation;
 	FRotator WorldActorRotation;

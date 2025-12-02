@@ -1,6 +1,5 @@
 #include "OceanFFTCalculator.h"
 #include "HAL/IConsoleManager.h"
-#include "OceanFFTCalculator.ispc.generated.h"
 
 #include "NiagaraSystem.h"
 

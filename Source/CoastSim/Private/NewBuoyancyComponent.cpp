@@ -8,7 +8,6 @@
 UNewBuoyancyComponent::UNewBuoyancyComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	ParentActor = GetOwner();
 }
 
 
@@ -16,15 +15,28 @@ UNewBuoyancyComponent::UNewBuoyancyComponent()
 void UNewBuoyancyComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	ParentActor = GetOwner();
 
 	// Initialize variables
-	ActorTransform = ParentActor->GetActorTransform();
+	if (ParentActor)
+	{
+		ActorTransform = ParentActor->GetActorTransform();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ParentActor is null"));
+	}
+	
 	WorldActorLocation = ParentActor->GetActorLocation();
 	WorldActorRotation = ParentActor->GetActorRotation();
-	if (MyStaticMeshComponent->IsValidLowLevelFast())
+	if (MyStaticMeshComponent && MyStaticMeshComponent->IsValidLowLevel())
 	{
 		RelativeStaticMeshLocation = MyStaticMeshComponent->GetRelativeLocation();
 		RelativeStaticMeshRotation = MyStaticMeshComponent->GetRelativeRotation();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("MyStaticMeshComponent invalid"));
 	}
 	ParentActor->SetActorLocation(FVector(WorldActorLocation.X, WorldActorLocation.Y, 0));
 	FFTCalculator = InitializeWaterZoneReference();
@@ -86,8 +98,8 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			BuoyancyArray.Empty();
 			BuoyancyArray = GetBuoyancyArray(PontoonsLocations);
 			const FQuat ActorQuat = CalculateBuoyancyRotation(BuoyancyArray);
-			const FVector BuoyancyLocation = GetMultiBuoyancyLocation(PontoonsLocations);
-			const FRotator BuoyancyRotation = FRotator(ActorQuat.Rotator()) + WorldActorRotation; //*RotationStrength
+			const FVector BuoyancyLocation = GetMultiBuoyancyLocation(PontoonsLocations) + FVector(0, 0, OffsetZ);
+			//const FRotator BuoyancyRotation = FRotator(ActorQuat.Rotator()) + WorldActorRotation; //*RotationStrength
 			//const FRotator BuoyancyRotation = FRotator(ActorQuat.Rotator().Pitch, ActorQuat.Rotator().Yaw, 0) * RotationStrength + WorldActorRotation;
 						
 			/*
@@ -101,7 +113,13 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			if (MyStaticMeshComponent->IsValidLowLevelFast())
 			{
 				MyStaticMeshComponent->SetWorldLocation(BuoyancyLocation);
-				MyStaticMeshComponent->SetWorldRotation(BuoyancyRotation);
+	 
+				FRotator ActorRotator = ActorQuat.Rotator();
+				float PitchFromBuoyancy = ActorRotator.Pitch;
+				float RollFromBuoyancy = ActorRotator.Roll;
+	 
+				FRotator BuoyancyRelativeRotation = FRotator(PitchFromBuoyancy, 0.f, RollFromBuoyancy);
+				MyStaticMeshComponent->SetRelativeRotation(BuoyancyRelativeRotation);
 			}
 
 			// Debug
