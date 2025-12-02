@@ -34,7 +34,6 @@ void FSpatialHashGrid::RemoveBoid(int32 BoidIndex, const FIntVector& Cell)
 	if (TArray<int32>* CellBoids = Cells.Find(Cell))
 	{
 		CellBoids->Remove(BoidIndex);
-		
 	}
 }
 
@@ -106,4 +105,21 @@ void FSpatialHashGrid::DrawGrid(UWorld* World, const FColor& Color, float Durati
 		);
 	}
 	
+}
+
+bool FSpatialHashGrid::CheckIfCellIsEmpty(FIntVector& Cell)
+{
+	if (TArray<int32>* CellBoids = Cells.Find(Cell))
+	{
+		return CellBoids->IsEmpty();
+	}
+
+	return false;
+}
+
+void FSpatialHashGrid::DeleteCell(FIntVector& Cell)
+{
+	//TODO: Should delete content aswell?
+	Cells.Remove(Cell);
+	UE_LOG(LogTemp, Warning, TEXT("Deleted Cell"));
 }

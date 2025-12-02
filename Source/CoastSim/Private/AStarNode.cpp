@@ -4,26 +4,50 @@
 #include "AStarNode.h"
 #include "Kismet/KismetMathLibrary.h" // For square root function
 #include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 AAStarNode::AAStarNode()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	
+	MyRootComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyRootComponent"));
+	SetRootComponent(MyRootComponent);
+	
 	// Creates sphere for neighbor detection.
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("SphereComponent");
 	SphereComponent->SetupAttachment(RootComponent);
+	
+}
+
+float AAStarNode::GetTerrainDifficulty()
+{
+	return TerrainDifficulty;
+}
+
+float AAStarNode::GetGValue()
+{
+	return GValue;
+}
+
+void AAStarNode::SetGValue(float InGValue)
+{
+	GValue = InGValue;
 }
 
 void AAStarNode::BeginPlay()
 {
 	Super::BeginPlay();
-	// Calls FindNeighbors after half a second to make the detection actually find everyone properly.
-	GetWorld()->GetTimerManager().SetTimer(NeighborDetectionTimerHandle, this, &AAStarNode::FindNeighbors, 0.5f, false);
+	// Calls FindNeighbors after a small time to make the detection actually find everyone properly.
+	// THIS DELETES THE SPHERE! DON'T USE THE POINTER FOR OTHER THINGS!!
+	GetWorld()->GetTimerManager().SetTimer(NeighborDetectionTimerHandle, this, &AAStarNode::FindNeighbors, 0.1f, false);
 	
 }
 
 void AAStarNode::FindNeighbors()
 {
+	if (SphereComponent == nullptr){ return;}
+	
 	TArray<AAStarNode*> neighbors;
         
     	TArray<AActor*> OverlappingActors;
@@ -39,6 +63,9 @@ void AAStarNode::FindNeighbors()
     		
     	}
     	Neighbors = neighbors;
+		
+		
+		SphereComponent->DestroyComponent();
 }
 
 
@@ -46,13 +73,20 @@ void AAStarNode::FindNeighbors()
 
 float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 {
-	FVector2D nodeLocation {GetActorLocation().X, GetActorLocation().Y};
-	FVector2D distanceVector {0, 0};
+
+	
+	// Current location
+	const FVector2D nodeLocation {GetActorLocation().X, GetActorLocation().Y};
+	// Target location
+	const FVector2D goalLocation = InGoalLocation;
+	
+	FVector2D distanceVector;
+	
 
 	// Finds the vector between the goal point and this node.
 	// Negative numbers won't matter, as they will become positive through pythagoras math
-	distanceVector.X = nodeLocation.X - InGoalLocation.X;
-	distanceVector.Y = nodeLocation.Y - InGoalLocation.Y;
+	distanceVector.X = nodeLocation.X - goalLocation.X;
+	distanceVector.Y = nodeLocation.Y - goalLocation.Y;
 
 	// Calculates the distance using pythagoras.
 	float heuristic = UKismetMathLibrary::Sqrt(distanceVector.X * distanceVector.X + distanceVector.Y * distanceVector.Y);
@@ -61,6 +95,20 @@ float AAStarNode::GetHeuristicCost(FVector2D InGoalLocation)
 	
 	return heuristic;
 
+}
+
+float AAStarNode::GetFValue()
+{
+	if (FValue == -1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Retreived F Value of -1!"));
+	}
+	return FValue;
+}
+
+void AAStarNode::SetFValue(float InFValue)
+{
+	FValue = InFValue;
 }
 
 TArray<AAStarNode*> AAStarNode::GetNeighbors()
@@ -84,10 +132,12 @@ bool AAStarNode::GetIsWalkable()
 void AAStarNode::DisableNode()
 {
 	bIsWalkable = false;
+	NodeState = ENodeState::Blocked;
 }
 void AAStarNode::EnableNode()
 {
 	bIsWalkable = true;
+	NodeState = ENodeState::Open;
 }
 
 
