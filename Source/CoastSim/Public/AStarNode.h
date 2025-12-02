@@ -6,7 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "AStarNode.generated.h"
 
-// Enum for showing the node state for A*
+// Enum for showing the node state for A*.
+// Deprecated, not really used for anything.
 UENUM(BlueprintType) 
 enum class ENodeState : uint8
 {
@@ -40,6 +41,8 @@ protected:
 	
 	FTimerHandle NeighborDetectionTimerHandle;
 	
+	// Custom root component made because if I didn't have this, it won't have position data.
+	// Why? Uhh, ask epic. Think it's related to me deleting the sphere component when it's no longer needed.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> MyRootComponent;
 
@@ -55,12 +58,11 @@ protected:
 
 	virtual void BeginPlay() override;
 	
-	// State of this node
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
-	ENodeState NodeState = ENodeState::Open;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	bool bIsWalkable = true;
 	
+	// g value for A* calculation
 	float GValue = 0.f;
 	
 	// Decides how difficult it is to traverse this node, as a multiplier.
@@ -87,8 +89,7 @@ public:
 	// Returns the multiplier of terrain difficulty.
 	float GetTerrainDifficulty();
 	
-	// Returns the current state of this node.
-	ENodeState GetNodeState() const;
+
 
 	bool GetIsWalkable();
 	
@@ -116,6 +117,20 @@ public:
 	// Sets the F value of this node.
 	UFUNCTION()
 	void SetFValue(float InFValue);
+	
+	
+	
+	/*
+	 * Deprecated stuff:
+	 */
+	
+protected:
+	// State of this node
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
+	ENodeState NodeState = ENodeState::Open;
+public:
+	// Returns the current state of this node.
+	ENodeState GetNodeState() const;
 	
 
 };

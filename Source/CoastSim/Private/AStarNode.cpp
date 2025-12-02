@@ -44,6 +44,8 @@ void AAStarNode::BeginPlay()
 	
 }
 
+// Function that adds every A* node it overlaps with to an array. This should be up to 8 nodes surrounding it,
+// if the level designer is competent.
 void AAStarNode::FindNeighbors()
 {
 	if (SphereComponent == nullptr){ return;}

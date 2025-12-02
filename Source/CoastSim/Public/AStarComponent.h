@@ -28,16 +28,19 @@ public:
 	
 protected:
 	
-	// For movement
+	// For movement purposes
 	UPROPERTY()
 	TObjectPtr<AAStarNode> PreviousNode;
 	
+	// Detection radius, decides if it has reached the goal
 	UPROPERTY(EditAnywhere, category = "AStar")
-	float NodeDetectionRadius = 10.f;
+	float NodeDetectionRadius = 30.f;
 	
+	// Nodes to explore. Array used for pathfinding.
 	UPROPERTY()
 	TArray<AAStarNode*> NodesToExplore;
 	
+	// Array of successful finds in the pathfinding.
 	UPROPERTY(VisibleAnywhere, category = "AStar")
 	TArray<AAStarNode*> NodesExplored;
 	
@@ -46,7 +49,7 @@ protected:
 	AAStarNode* GetBestNode(TArray<AAStarNode*> InAStarNodes);
 	
 	
-	// Changes direction for next node
+	// Changes direction, so it points to the next node for movement.
 	void ChangeDirection();
 	
 	// The actor that has this component attached.
@@ -58,35 +61,34 @@ protected:
 	
 	// Movement speed for A* movement
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, category = "AStar")
-	float MovementSpeed = 100.f;
-	// If true, will move in movementdirection
+	float MovementSpeed = 500.f;
+	// If true, will move in movementdirection. Only set as true when it has a goal to move towards.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	bool bIsMoving = false;
-	// Current direction of movement. Should be between -1 and 1
+	// Current direction of movement as a vector. Should be between -1 and 1
 	UPROPERTY(VisibleAnywhere, category = "AStar")
 	FVector2D MovementDirection {0, 0};
 	// The next node to move to
 	UPROPERTY()
 	AAStarNode* NextNode;
-	// The end goal
+	// The end goal node.
 	UPROPERTY()
 	AAStarNode* GoalNode;
-	
-	UPROPERTY()
-	AAStarNode* CurrentNode;
-	
+
+	// Pointer to the AStarGlobals class, which stores an array of all nodes.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, category = "AStar")
 	TObjectPtr<AAStarGlobals> AStarGlobals;
 	
+	// Returns the closest node by XY location to the owner actor.
 	UFUNCTION()
 	AAStarNode* GetCurrentNode();
 	
-	// Priority queue for movement. Uses standard C++ library
+	// Queue for movement. Uses standard C++ library.
+	// Would have used a priority queue, but this works fine.
 	std::queue<AAStarNode*> MovementQueue;
 	
-	// Moves owner actor to AStarNode
-	UFUNCTION()
-	void AStarMoveTo (const AAStarNode* TargetNode);
+	
+	
 
 public:	
 	// Called every frame
@@ -96,7 +98,19 @@ public:
 	UFUNCTION(BlueprintCallable, category = "AStar")
 	void PathFindTo(AAStarNode* AStarNode);
 	
+		
+	// Deprecated:
 	
-
+	/*
+	 
+	 // Moves owner actor to AStarNode
+      	UFUNCTION()
+      	void AStarMoveTo (const AAStarNode* TargetNode);
+      	
+	UPROPERTY()
+	AAStarNode* CurrentNode;
+	
+	
+	*/
 		
 };
