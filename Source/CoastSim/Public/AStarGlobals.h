@@ -27,6 +27,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// An array of all AStarNodes  in the scene. 
+	// Using this class to store them so they won't be stored in every single AStarComponent if there are multiple.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, category = "AStar")
 	TArray<AAStarNode*> AStarNodes;
 	

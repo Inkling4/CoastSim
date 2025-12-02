@@ -25,7 +25,7 @@ UAStarComponent::UAStarComponent()
 void UAStarComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	// Being double sure this runs
+	// Being double sure this runs, even though I have it in constructor
 	OwnerActor = GetOwner();
 	
 	if (TObjectPtr<AActor> GlobalsActor = UGameplayStatics::GetActorOfClass(GetWorld()->GetCurrentLevel(), AAStarGlobals::StaticClass()))
@@ -35,31 +35,33 @@ void UAStarComponent::BeginPlay()
 	
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No AStar Component found!"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No AStarGlobals found!"));
 	}
 
 	
 }
 
+// Deprecated.
+/*
 void UAStarComponent::AStarMoveTo(const AAStarNode* TargetNode)
 {
 	if (TargetNode == nullptr) {return;}
 	
 	
 }
+*/
 
-// Currently broken
+
 void UAStarComponent::ChangeDirection()
 {
-	// Z values as 0 to make the kismet math function work
+	
 	FVector CurrentLocation {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y, 0.f};
 	FVector NextGoalLocation {NextNode->GetActorLocation().X, NextNode->GetActorLocation().Y, 0.f};
 
 
 	FVector TempNewDirection = (NextGoalLocation - CurrentLocation).GetSafeNormal();
 	
-		//UKismetMathLibrary::GetDirectionUnitVector(CurrentLocation, NextGoalLocation);
-			// Applies changes to the movement direction property
+	// Applies changes to the movement direction property
 	FVector2D NewDirection {TempNewDirection.X, TempNewDirection.Y};
 	// GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("Goal location Y coords are: %f %f"), NextGoalLocation.X, NextGoalLocation.Y));
 	MovementDirection = NewDirection;
@@ -70,6 +72,7 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
+	// If bIsMoving is true, the movement logic runs.
 	if (bIsMoving)
 	{
 		if (OwnerActor != nullptr && NextNode != nullptr)
@@ -103,6 +106,7 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 				}
 				else
 				{
+					// Stops movement if you reached the end.
 					bIsMoving = false;
 				}
 			}
@@ -118,7 +122,8 @@ void UAStarComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 }
 
-// Finds the closest node to the owner of this component
+// Finds the closest node to the owner of this component.
+// Ignores Z axis, only uses XY position for this.
 AAStarNode* UAStarComponent::GetCurrentNode()
 {
 	FVector2D ActorLocation  {OwnerActor->GetActorLocation().X, OwnerActor->GetActorLocation().Y};
@@ -160,6 +165,7 @@ AAStarNode* UAStarComponent::GetBestNode(TArray<AAStarNode*> InAStarNodes)
 	AAStarNode* bestNode = nullptr;
 	for (auto Node : InAStarNodes)
 	{
+		// Sets the bestNode properly on the first increment
 		if (bestNode == nullptr)
 		{
 			bestNode = Node;
@@ -177,6 +183,7 @@ AAStarNode* UAStarComponent::GetBestNode(TArray<AAStarNode*> InAStarNodes)
 }
 
 
+// This function has the actual pathfindinding! :D
 void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 {
 	bIsMoving = false;
@@ -211,25 +218,29 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 	StartNode->SetFValue(0); // Sets f value to 0 as it's the starter node.
 	StartNode->SetGValue(0);
 	StartNode->PathFindingDepth = 0;
-	NodesToExplore.AddUnique(StartNode);
+	NodesToExplore.AddUnique(StartNode); // Using AddUnique to prevent duplicate nodes in array infinitely, crashing the game.
 	
 	FVector2D GoalNodeLocation {GoalNode->GetActorLocation().X, GoalNode->GetActorLocation().Y};
 	
 	
-	
+	// Pathfinding
 	while (!NodesToExplore.IsEmpty())
-	{
+	{ 
+		// Current node set as the best node from the array. This in effect, just adds the starter node to it, as the array only has one element by this point.
 		TObjectPtr<AAStarNode> ThisNode = GetBestNode(NodesToExplore);
 		
 		for (auto Neighbor : ThisNode->GetNeighbors())
 		{
+			// If check to see if the node in question has already been investigated before.
 			if (!NodesToExplore.Contains(Neighbor) && !NodesExplored.Contains(Neighbor))
 			{
 				
 				FVector2D NeighborLocation {Neighbor->GetActorLocation().X, Neighbor->GetActorLocation().Y};
 				
+				// Needs to be an enabled node.
 				if (Neighbor->GetIsWalkable())
 				{
+					// Stops everything if it finds the goal.
 					if (Neighbor == GoalNode)
 					{
 						Neighbor->PathFindingDepth = ThisNode->PathFindingDepth + 1;
@@ -253,6 +264,7 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
                     					
 						Neighbor->SetGValue(NeighborGValue);
 						Neighbor->SetFValue(Neighbor->GetHeuristicCost(GoalNodeLocation) + NeighborGValue);
+						// Depth in the graph. starts at 0, increments by 1 for each node further in the graph.
 						Neighbor->PathFindingDepth = ThisNode->PathFindingDepth + 1;
                     					
 						// Adds node to the exploration list.
@@ -273,10 +285,11 @@ void UAStarComponent::PathFindTo(AAStarNode* AStarNode)
 		}
 	}
 
-	// Empties queue
+	// Empties queue before movement
 	MovementQueue = std::queue<AAStarNode*>();
 	
 	{
+		// Adds NodesExplored to the movement queue, so the actor knows where to go
 		for (int i = 0; i < GoalNode->PathFindingDepth; i++)
 		{
 			TObjectPtr<AAStarNode> bestNodeOfDepth;
