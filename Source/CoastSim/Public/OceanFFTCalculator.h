@@ -17,7 +17,7 @@ public:
     //Wave material scale
     // ALL OF THESE HAS TO MATCH THE MATERIAL VALUES
     float scale = 1.0f; // 3
-    float overlapScale = 4.0f; // 16
+    float overlapScale = 8.0f; // 16
     float multiplyScale = 1.0f;
 
     void Initialize();
