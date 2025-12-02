@@ -133,11 +133,13 @@ void AAStarNode::DisableNode()
 {
 	bIsWalkable = false;
 	NodeState = ENodeState::Blocked;
+	ChangeColor("Disabled");
 }
 void AAStarNode::EnableNode()
 {
 	bIsWalkable = true;
 	NodeState = ENodeState::Open;
+	ChangeColor("White");
 }
 
 
