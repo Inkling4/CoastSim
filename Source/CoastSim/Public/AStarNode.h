@@ -36,7 +36,7 @@ class COASTSIM_API AAStarNode : public AActor
 	
 protected:
 
-	float FValue = -1;
+	float FValue = -1.f;
 	
 	
 	FTimerHandle NeighborDetectionTimerHandle;
@@ -74,7 +74,7 @@ public:
 	AAStarNode();
 	
 	UPROPERTY(VisibleAnywhere, category = "AStar")
-	int PathFindingDepth;
+	int32 PathFindingDepth;
 	
 	// Returns the total cost from start point to this node.
 	float GetGValue();
