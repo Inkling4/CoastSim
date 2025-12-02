@@ -132,7 +132,9 @@ void UNewBuoyancyComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			if (MyStaticMeshComponent->IsValidLowLevelFast())
 			{
 				const FVector BuoyancyLocation = GetBuoyancyLocation(PontoonsLocations[0]);
-				MyStaticMeshComponent->SetWorldLocation(BuoyancyLocation);
+				//MyStaticMeshComponent->SetWorldLocation(BuoyancyLocation);
+				MyStaticMeshComponent->SetRelativeLocation(BuoyancyLocation);
+
 			}
 		}
 	}
