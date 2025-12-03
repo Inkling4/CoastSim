@@ -293,9 +293,10 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 	//bool isAligning = FVector::DotProduct(Boid.Velocity - FVector(0, 0, Boid.Velocity.Z), AlignSum - FVector(0, 0, AlignSum.Z)) < .6;
 	///*
 	// Aligning adjusted with gravity in mind
-	if (AlignCount > 0 && FVector::DotProduct((Boid.Velocity - FVector(0, 0, Boid.Velocity.Z)).GetSafeNormal(), (AlignSum -FVector(0, 0, AlignSum.Z).GetSafeNormal())) < .6) // Move in the same direction
-		Boid.Acceleration += SteerTowards(AlignSum / AlignCount, Boid, true) * AlignmentFactor;
-
+	//if (AlignCount > 0 && FVector::DotProduct((Boid.Velocity - FVector(0, 0, Boid.Velocity.Z)).GetSafeNormal(), (AlignSum -FVector(0, 0, AlignSum.Z).GetSafeNormal())) < .98) Boid.Acceleration += SteerTowards(AlignSum / AlignCount, Boid, true) * AlignmentFactor;
+	if (AlignCount > 0) // Steer in the same direction
+		Boid.Acceleration += SteerTowards(AlignSum / AlignCount, Boid) * AlignmentFactor;
+	
 	// Flock together
 	if (CohesionCount > 0 && true) 
 	{
@@ -336,14 +337,17 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 		
 		
 		float zFactor = TargetDirection.Z;
-		if (Boid.savedLocation != FVector::ZeroVector)
-			zFactor = (Boid.savedLocation - Boid.Position).Z;
+		if (Boid.savedLocation != FVector::ZeroVector) 
+			zFactor = FMath::Lerp((Boid.savedLocation - Boid.Position).Z, zFactor, .3f);
+
+		if(NumberOfBoids == 1)
+			UE_LOG(LogTemp, Warning, TEXT("z factor: %.f"), zFactor);
 
 		// Could have done a random timer going upwards, checking afterwards if they need more lift or not
-		if ((zFactor < SpeedAvoidance && !Boid.Ascending) || (zFactor < -SpeedAvoidance && Boid.Ascending))
+		if ((zFactor > SpeedAvoidance && !Boid.Ascending) || (zFactor > -SpeedAvoidance && Boid.Ascending))
 		{
 			Boid.Ascending = true;
-			dir = SteerTowards(FVector(TargetDirection.GetSafeNormal2D().X, TargetDirection.GetSafeNormal2D().Y, 0)*1.4 + FVector(0, 0, .5), Boid, true) * HeightLoss * 3;
+			dir = SteerTowards(FVector(TargetDirection.GetSafeNormal2D().X, TargetDirection.GetSafeNormal2D().Y, 0) * 1.4 + FVector(0, 0, .5), Boid, true) * HeightLoss *3;
 
 			Boid.Acceleration += FMath::Lerp(Boid.Velocity, dir, 0.2f);
 		}
@@ -356,14 +360,13 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 			//SteerTowards(FVector(0, 0, -9.81), Boid, true) * HeightLoss;
 
 			Boid.Acceleration += FMath::Lerp(Boid.Velocity, dir, 0.2f);
-
 		}
 
 		// Invert Ascension bool if separation factor is working against you
-		if (SeparationWeight.Length() > dir.Length() && FVector::DotProduct(SeparationWeight.GetSafeNormal(), dir.GetSafeNormal()) < 0)
+		if (SeparationWeight.Length() > dir.Length() && FVector::DotProduct(SeparationWeight.GetSafeNormal(), dir.GetSafeNormal()) < -0.3)
 		{
 			Boid.Ascending = !Boid.Ascending;
-			Boid.savedLocation = Boid.Position + FVector(0, 0, (dir - SeparationWeight).Z);
+			Boid.savedLocation = Boid.Position;// +FVector(0, 0, (dir - SeparationWeight).Z);
 		}
 
 		// If 
@@ -380,14 +383,13 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 		}
 		
 		// Coheer on xy-plane
-		FVector CohesionXY = ((FVector(1, 1, -5) * CohesionSum).GetSafeNormal() * CohesionSum.Size() / CohesionCount) - Boid.Position; //.GetSafeNormal()*CohesionSum.Size()
-		if (CohesionCount > 0) // Flock together
-			Boid.Acceleration += SteerTowards(CohesionXY, Boid, true) * CohesionFactor;
+		FVector CohesionXY = ((FVector(1, 1, 1) * CohesionSum).GetSafeNormal() * CohesionSum.Size() / CohesionCount) - Boid.Position; //.GetSafeNormal()*CohesionSum.Size()
+		//if (CohesionCount > 0) Boid.Acceleration += SteerTowards(CohesionXY, Boid, true) * CohesionFactor;
 
 		//Boid.Acceleration += FMath::Lerp(Boid.Velocity, dir, 0.2f);
 
-		//const TCHAR* BoolText = Boid.Ascending ? TEXT("True") : TEXT("False");
-		//if (Boid.Ascending) UE_LOG(LogTemp, Warning, TEXT("Z: %.f, Ascending: %s"), Boid.Acceleration.Z, BoolText);
+		const TCHAR* BoolText = Boid.Ascending ? TEXT("True") : TEXT("False");
+		if (Boid.Ascending) UE_LOG(LogTemp, Warning, TEXT("Z: %.f, Ascending: %s"), Boid.Acceleration.Z, BoolText);
 	}
 
 
@@ -399,7 +401,7 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 	float fullDot = FVector::DotProduct(TargetPointPos.GetSafeNormal(), Boid.Velocity.GetSafeNormal());
 
 	if (TargetPoint &&
-		(((xyDot < .85 || fullDot < .8) && !Boid.TargetingTarget) || 
+		(((xyDot < .95 || fullDot < .9) && !Boid.TargetingTarget) || 
 			((xyDot < .99 || fullDot < .95) && Boid.TargetingTarget))) // Move towards a point
 	{
 		Boid.TargetingTarget = true;
