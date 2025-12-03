@@ -66,7 +66,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	bool bIsMoving = false;
 	// Current direction of movement as a vector. Should be between -1 and 1
-	UPROPERTY(VisibleAnywhere, category = "AStar")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, category = "AStar")
 	FVector2D MovementDirection {0, 0};
 	// The next node to move to
 	UPROPERTY()
