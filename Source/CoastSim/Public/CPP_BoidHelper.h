@@ -10,7 +10,7 @@ struct FCPP_BoidHelper
 {
 	GENERATED_BODY()
 
-	static const int32 NumViewDirections = 64;
+	static const int32 NumViewDirections = 16;
 	static TArray<FVector> Directions;
 	
 	static void Init();

@@ -17,6 +17,8 @@ struct FBoid
 {
 	GENERATED_BODY()
 
+#pragma region Boid Info Variables
+
 	//Stores the previous and target position/rotation, used in tick to interpolate movement between each UpdateBoid()
 	UPROPERTY(VisibleAnywhere, Category="Flock Settings")
 	FVector PrevPosition;
@@ -43,6 +45,19 @@ struct FBoid
 	UPROPERTY(VisibleAnywhere, Category="Flock Settings")
 	FVector Acceleration;
 
+
+	//Used to check if a boid has changed cell
+	UPROPERTY()
+	FIntVector OldCellLocation;
+
+	bool Ascending, TargetingTarget, MatchingTheFlock;
+
+	FVector savedLocation;
+
+#pragma endregion
+
+
+
 	//The min/max speed/force to clamp velocity
 	UPROPERTY(EditAnywhere, Category="Flock Settings")
 	float MaxSpeed;
@@ -53,9 +68,6 @@ struct FBoid
 	UPROPERTY(EditAnywhere, Category="Flock Settings")
 	float MaxForce;
 
-	//Used to check if a boid has changed cell
-	UPROPERTY()
-	FIntVector OldCellLocation;
 	
 	FBoid()
 		: PrevPosition(FVector::ZeroVector)
@@ -69,6 +81,8 @@ struct FBoid
 		, MinSpeed(300.0f)
 		, MaxForce(300.f)
 		, OldCellLocation(FVector::ZeroVector)
+		, Ascending(false)
+		, savedLocation(FVector::ZeroVector)
 	{}
 };
 
@@ -103,6 +117,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UInstancedStaticMeshComponent* InstancedMesh;
 
+	// A point in the world which the flock move towards
 	UPROPERTY(EditAnywhere)
 	ATargetPoint* TargetPoint;
 
@@ -179,11 +194,20 @@ protected:
 
 	//NOT IN USE
 	//Used by Avoid Boundary to set the radius in which to contain the boids
-	UPROPERTY(EditAnywhere, Category="Flock Settings")
-	float BoundaryRadius = 2000.f;
+	//UPROPERTY(EditAnywhere, Category="Flock Settings") float BoundaryRadius = 2000.f;
+	//UPROPERTY(EditAnywhere, Category="Flock Settings")float BoundaryAvoidanceThreshold = 500.f;
 
-	UPROPERTY(EditAnywhere, Category="Flock Settings")
-	float BoundaryAvoidanceThreshold = 500.f;
+
+	// Factor in which the bird loses height
+	UPROPERTY(EditAnywhere, Category = "Flock Settings")
+	float HeightLoss = 10.f;
+	UPROPERTY(EditAnywhere, Category = "Flock Settings")
+	float SpeedAvoidance = -70;
+
+	UPROPERTY(EditAnywhere, Category = "Flock Settings") float zCohesion = 3;
+
+	UPROPERTY(EditAnywhere, Category = "Flock Settings") bool oldFlocking;
+
 	
 #pragma endregion Boid_Tuning_Variables
 
@@ -201,6 +225,8 @@ protected:
 
 	//Method used by ApplyFlockingForces to apply the steering vectors to actual acceleration on the boids
 	static FVector SteerTowards(const FVector& DesiredDirection, const FBoid& Boid);
+
+	static FVector SteerTowards(const FVector& DesiredDirection, const FBoid& Boid, bool normal);
 
 	//Method called when IsHeadingForCollision is true, uses CPP_BoidHelper to cast out sphere casts along points on a sphere.
 	//Starts centrally then gradually expands. Returns the first avaliable direction 
