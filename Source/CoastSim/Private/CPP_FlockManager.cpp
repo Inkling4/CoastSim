@@ -25,7 +25,7 @@ ACPP_FlockManager::ACPP_FlockManager() : SpatialHashGrid(1000, true)
 
 	//Culling distance to set when the birds stop rendereing
 	InstancedMesh->InstanceStartCullDistance = 1000.f;
-	InstancedMesh->InstanceEndCullDistance = 20000.f;
+	InstancedMesh->InstanceEndCullDistance = 100000.f;
 	
 	AlignmentFactor = 2.0f;
 	CohesionFactor = 2.0f;
@@ -274,7 +274,7 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 		//Boid.Acceleration.Normalize();
 	}*/
 		
-	if (oldFlocking)
+	if (oldFlocking || !TargetPoint)
 	{
 		if (AlignCount > 0) // Steer in the same direction
 			Boid.Acceleration += SteerTowards(AlignSum / AlignCount, Boid) * AlignmentFactor;
@@ -354,7 +354,7 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 		{
 			Boid.Ascending = false;
 
-			dir = SteerTowards(FVector(TargetDirection.GetSafeNormal2D().X, TargetDirection.GetSafeNormal2D().Y, -.15), Boid, true) * HeightLoss;
+			dir = SteerTowards(FVector(TargetDirection.GetSafeNormal2D().X, TargetDirection.GetSafeNormal2D().Y, -.3), Boid, true) * HeightLoss;
 
 			//SteerTowards(FVector(0, 0, -9.81), Boid, true) * HeightLoss;
 
@@ -362,7 +362,8 @@ void ACPP_FlockManager::ApplyFlockingForces(FBoid& Boid, int32 BoidIndex, const 
 		}
 
 		// Invert Ascension bool if separation factor is working against you
-		if (SeparationWeight.Length() > dir.Length() && FVector::DotProduct(SeparationWeight.GetSafeNormal(), dir.GetSafeNormal()) < -0.3)
+		if (SeparationWeight.Length() > dir.Length() && FVector::DotProduct(SeparationWeight.GetSafeNormal(), dir.GetSafeNormal()) < -0.3 ) 
+			//|| (FVector::DotProduct(ObstacleRays(Boid).GetSafeNormal(), Boid.Velocity.GetSafeNormal()) < 0.9))
 		{
 			Boid.Ascending = !Boid.Ascending;
 			Boid.savedLocation = Boid.Position;// +FVector(0, 0, (dir - SeparationWeight).Z);
@@ -466,7 +467,7 @@ FVector ACPP_FlockManager::ObstacleRays(const FBoid& Boid) const
 		FVector Dir = FVector::ZeroVector;
 		if (i == -1)
 		{
-			Dir = FRotator(0, 0, 30).RotateVector(Boid.Velocity.GetSafeNormal());
+			Dir = FRotator(60, 0, 0).RotateVector(Boid.Velocity.GetSafeNormal());
 		}
 		else
 			Dir = Rotation.RotateVector(RayDirections[i]);

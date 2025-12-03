@@ -119,7 +119,7 @@ protected:
 
 	// A point in the world which the flock move towards
 	UPROPERTY(EditAnywhere)
-	ATargetPoint* TargetPoint;
+	AActor* TargetPoint;
 
 	//The mesh thats assigned to the instancedMesh
 	UPROPERTY(EditAnywhere, Category="Flock Settings")
