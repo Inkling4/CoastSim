@@ -77,12 +77,13 @@ struct FBoid
 		, Position(FVector::ZeroVector)
 		, Velocity(FVector::ZeroVector)
 		, Acceleration(FVector::ZeroVector)
-		, MaxSpeed(500.f)
-		, MinSpeed(300.0f)
-		, MaxForce(300.f)
 		, OldCellLocation(FVector::ZeroVector)
 		, Ascending(false)
 		, savedLocation(FVector::ZeroVector)
+		, MaxSpeed(500.f)
+		, MinSpeed(300.0f)
+		, MaxForce(300.f)
+		
 	{}
 };
 
